@@ -5,6 +5,10 @@ var H = C.height;
 var XS = 0;
 var YS = 0;
 
+function rand(start, end) {
+    return Math.floor(Math.random()*(end - start + 1)) + start;
+}
+
 function clear(col) {
     CTX.fillStyle = col;
     CTX.fillRect(XS, YS, W, H);

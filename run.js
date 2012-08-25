@@ -1,30 +1,39 @@
 
 var RUNNNING;
 
-var last_end_time;
-var start_time;
+var END_TIME;
+var START_TIME;
 var TIME_DELTA;
 
 var TARGET_FRAME_TIME = 1000 / 60;
 
-var timeout;
+var TIMEOUT;
+
+var frame_fun = pong_frame;
+
+var frame_ret;
 
 function main() {
-    start_time = new Date().getTime();
+    START_TIME = new Date().getTime();
     clearTimeout(RUNNING);
     clear("#000000");
-    last_end_time = new Date().getTime();
-    TIME_DELTA = (TIME_DELTA + (last_end_time - start_time)) / 2;
-    timeout = 1;
+    END_TIME = new Date().getTime();
+    TIME_DELTA = (TIME_DELTA + (END_TIME - START_TIME)) / 2;
+    TIMEOUT = 1;
     if (TIME_DELTA < TARGET_FRAME_TIME) {
-        timeout = Math.round(TARGET_FRAME_TIME-TIME_DELTA);
+        TIMEOUT = Math.round(TARGET_FRAME_TIME-TIME_DELTA);
     }
-    pong_frame(TIME_DELTA + timeout);
-    document.getElementById("frame-time").innerHTML = timeout + " - " + TIME_DELTA;
-    RUNNING = setTimeout(main, timeout);
+    frame_ret = frame_fun(TIME_DELTA + TIMEOUT);
+    if (frame_ret === "next") {
+        alert("NEXT LEVEL");
+    } else if (! frame_ret) {
+        alert("LOST");
+    }
+    document.getElementById("frame-time").innerHTML = TIMEOUT + " - " + TIME_DELTA;
+    RUNNING = setTimeout(main, TIMEOUT);
 }
 
 var TIME_DELTA = 0.3;
-last_end_time = new Date().getTime();
+END_TIME = new Date().getTime();
 RUNNING = setTimeout(main, 1);
 
