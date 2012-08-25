@@ -6,9 +6,12 @@ var as_velx;
 var as_vely;
 
 var as_teroids;
+var as_bullets;
 
 var AS_SHIP_W = 30;
 var AS_SHIP_H = 40;
+
+var AS_SIZE = 20;
 
 function asteroids_init() {
     as_x = W/2;
@@ -17,6 +20,35 @@ function asteroids_init() {
     as_engine = false;
     as_velx = 0;
     as_vely = 0;
+    as_bullets = [];
+    as_teroids = [];
+    var posx, posy;
+    var dpos = H/4;
+    for (var i = 0; i < 5; i++) {
+        switch (rand(0, 4)) {
+            case 0:
+                posx = rand(-dpos, dpos);
+                posy = rand(-dpos, dpos);
+                break;
+            case 1:
+                posx = rand(W-dpos, W+dpos);
+                posy = rand(-dpos, dpos);
+                break;
+            case 2:
+                posx = rand(W-dpos, W+dpos);
+                posy = rand(H-dpos, H+dpos);
+                break;
+            default:
+                posx = rand(dpos, dpos);
+                posy = rand(H-dpos, H+dpos);
+                break;
+        }
+        as_teroids.push({
+            pos: [posx, posy],
+            vel: [rand(-1, 1)/500, rand(-1, 1)/50],
+            sz: rand(2, 3)
+        });
+    }
 }
 
 function as_draw_ship() {
@@ -47,12 +79,70 @@ function as_draw_ship() {
     CTX.translate(-as_x, -as_y);
 }
 
+function as_draw_teroids() {
+    var a;
+    for (var i=0; i<as_teroids.length; i++) {
+        a = as_teroids[i];
+        CTX.lineWidth = 2;
+        CTX.strokeStyle = "#FFF";
+        CTX.beginPath();
+        CTX.arc(a.pos[0], a.pos[1], a.sz*AS_SIZE, 0, 2 * Math.PI, false);
+        CTX.stroke();
+    }
+}
+
 function asteroids_frame(dt) {
-
-
     as_ctrl(dt);
+    as_ctrl_teroids(dt);
+    as_ctrl_bullets(dt);
+    as_draw_teroids();
     as_draw_ship();
     return true;
+}
+
+function as_ctrl_teroids(dt) {
+    var a;
+    for (var i=0; i<as_teroids.length; i++) {
+        a = as_teroids[i];
+        a.pos[0] += a.vel[0] * dt;
+        a.pos[1] += a.vel[1] * dt;
+        if (a.pos[0] > W+20) {
+            a.vel[0] *= -1;
+            a.pos[0] = W+20;
+        }
+        if (a.pos[0] < -20) {
+            a.vel[0] *= -1;
+            a.pos[0] = -20;
+        }
+        if (a.pos[1] > H+20) {
+            a.vel[1] *= -1;
+            a.pos[1] = H+20;
+        }
+        if (a.pos[1] < -20) {
+            a.vel[1] *= -1;
+            a.pos[1] = -20;
+        }
+    }
+}
+
+function as_ctrl_bullets(dt) {
+    var b;
+    var new_bullets = []
+    for (var i=0; i<as_bullets.length; i++) {
+        b = as_bullets[i];
+        if (b.live) {
+            b.pos[0] += b.vel[0] * dt;
+            b.pos[1] += b.vel[1] * dt;
+            if ((b.pos[0] > W+20)
+            || (b.pos[0] < -20)
+            || (b.pos[1] > H+20)
+            || (b.pos[1] < -20)) {
+                b.live = false;
+            }
+            new_bullets.push(b);
+        }
+    }
+    as_bullets = new_bullets;
 }
 
 function as_ctrl(dt) {
@@ -79,6 +169,16 @@ function as_ctrl(dt) {
     }
     while (as_dir > 360) as_dir -= 360;
     while (as_dir < 0) as_dir += 360;
+    if (KEY.space) {
+        var ang = deg2rad(as_dir) + Math.PI;
+        bvelx -= Math.sin(ang)*dt;
+        bvely += Math.cos(ang)*dt;
+        as_bullets.push({
+            pos: [as_x, as_y],
+            vel: [bvelx, bvely],
+            live: true
+       }
+    }
 }
 
 function asteroids_ctrl_hint() {
