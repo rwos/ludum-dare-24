@@ -10,3 +10,39 @@ function clear(col) {
     CTX.fillRect(XS, YS, W, H);
 }
 
+var KEY = {
+    up: false,
+    down: false
+}
+
+function key_change(code, down) {
+    var k;
+    switch (code) {
+    case 38:
+    case 87:
+        k = "up";
+        break;
+    case 40:
+    case 83:
+        k = "down";
+        break;
+    }
+    if (down) {
+        KEY[k] = true;
+    } else {
+        KEY[k] = false;
+    }
+}
+
+document.body.onkeydown = function(event) {
+    event = event || window.event;
+    var code = event.keyCode;
+    key_change(code, true);
+}
+
+document.body.onkeyup = function(event) {
+    event = event || window.event;
+    var code = event.keyCode;
+    key_change(code, false);
+}
+
