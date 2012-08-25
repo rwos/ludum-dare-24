@@ -1,18 +1,34 @@
-var pong_py = H/2;
-var pong_ey = H/2;
-var pong_bx = W/2;
-var pong_by = H/2;
-var pong_speed = 0.3;
-var pong_bdx = pong_speed;
-var pong_bdy = pong_speed;
+var pong_py;
+var pong_ey;
+var pong_bx;
+var pong_by;
+var pong_speed;
+var pong_bdx;
+var pong_bdy;
+var pong_ppoints;
+var pong_epoints;
 
-var pong_ppoints = 0;
-var pong_epoints = 0;
+var PONG_PADDLE_H;
+var PONG_PADDLE_X;
+var PONG_BSZ;
 
-var PONG_PADDLE_H = 70;
-var PONG_PADDLE_X = 15;
+function pong_init() {
+    pong_py = H/2;
+    pong_ey = H/2;
+    pong_bx = W/2;
+    pong_by = H/2;
+    pong_speed = 0.3;
+    pong_bdx = pong_speed;
+    pong_bdy = pong_speed;
 
-var PONG_BSZ = 2;
+    pong_ppoints = 0;
+    pong_epoints = 0;
+
+    PONG_PADDLE_H = 70;
+    PONG_PADDLE_X = 15;
+
+    PONG_BSZ = 2;
+}
 
 function pong_advance_ball(dt) {
     pong_bx += pong_bdx * dt;

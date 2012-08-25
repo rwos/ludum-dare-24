@@ -9,6 +9,8 @@ var TARGET_FRAME_TIME = 1000 / 60;
 
 var TIMEOUT;
 
+var LEVELS = ["pong", "asteroids"]
+var NEXT_LEVEL = 0;
 var frame_fun = pong_frame;
 var frame_ret;
 var ctrl_hint_fun = pong_ctrl_hint;
@@ -17,9 +19,22 @@ function display_ctrl_hint() {
     var s = "<pre>";
     var hints = ctrl_hint_fun();
     for (var key in hints) {
-        s += "<b>" + key + "</b>\t\t---" + hints[key] + "\n";
+        s += "<b>" + key + "</b>\t--- " + hints[key] + "\n";
     }
     document.getElementById("ctrl-hint").innerHTML = s + "</pre>";
+}
+
+function chg_level() {
+    var lvl_name = LEVELS[NEXT_LEVEL];
+    // evil eval! :-)
+    frame_fun = eval(lvl_name + "_frame");
+    ctrl_hint_fun = eval(lvl_name + "_ctrl_hint");
+    display_ctrl_hint();
+    for (var k in KEY) {
+        KEY[k] = false;
+    }
+    eval(lvl_name + "_init()");
+    NEXT_LEVEL += 1;
 }
 
 function main() {
@@ -37,6 +52,8 @@ function main() {
         alert("NEXT LEVEL");
     } else if (! frame_ret) {
         alert("LOST");
+        NEXT_LEVEL -= 1;
+        chg_level();
     }
     document.getElementById("frame-time").innerHTML = TIMEOUT + " - " + TIME_DELTA;
     RUNNING = setTimeout(main, TIMEOUT);
@@ -44,6 +61,6 @@ function main() {
 
 var TIME_DELTA = 0.3;
 END_TIME = new Date().getTime();
-display_ctrl_hint();
+chg_level();
 RUNNING = setTimeout(main, 1);
 
