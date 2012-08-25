@@ -106,3 +106,7 @@ function pong_frame(dt) {
     return true; // go on
 }
 
+function pong_ctrl_hint() {
+    return {"w or up-arrow": "up", "s or down-arrow": "down"};
+}
+
