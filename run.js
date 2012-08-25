@@ -9,11 +9,11 @@ var TARGET_FRAME_TIME = 1000 / 60;
 
 var TIMEOUT;
 
-var LEVELS = ["pong", "asteroids"]
-var NEXT_LEVEL = 1;
-var frame_fun = pong_frame;
+var LEVELS = ["pong", "asteroids", "pacman"]
+var NEXT_LEVEL = 2;
+var frame_fun;
 var frame_ret;
-var ctrl_hint_fun = pong_ctrl_hint;
+var ctrl_hint_fun;
 
 function display_ctrl_hint() {
     var s = "<pre>";
