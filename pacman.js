@@ -47,6 +47,7 @@ var pm_dir;
 var pm_next_dir;
 var pm_eat;
 var pm_anim;
+var pm_door_open;
 
 function pm_pos() {
     for (var y=0; y<map.length; y++) {
@@ -65,6 +66,7 @@ function pacman_init() {
     pm_next_dir = "right";
     pm_eat = false;
     pm_anim = 0;
+    pm_door_open = false;
 }
 
 function pm_draw_map(blink) {
@@ -87,6 +89,9 @@ function pm_draw_map(blink) {
                 var off = PM_TILE_SZ/2;
                 CTX.arc(x*PM_TILE_SZ+dx+off, y*PM_TILE_SZ+dy+off, PM_TILE_SZ/3, 0, 2 * Math.PI, false);
                 CTX.fill();
+            } else if (map[y][x] == "-" && (! pm_door_open)) {
+                CTX.fillStyle = "#774400";
+                CTX.fillRect(x*PM_TILE_SZ+dx, y*PM_TILE_SZ+dy, PM_TILE_SZ, PM_TILE_SZ);
             }
         }
     }
