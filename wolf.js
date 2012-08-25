@@ -6,17 +6,17 @@ var MAP = [
 "X                                                          X",
 "X                                                          X",
 "X                                                          X",
-"X                                                          X",
-"X                                                          X",
-"X                                                          X",
-"X       XXXX                                               X",
-"X          X                                               X",
-"X         XXXXXXXXXX                                       X",
-"X         X     X                                          X",
-"X         XXXXX X                                          X",
-"X               X                                          X",
-"X                                                          X",
-"X                                                          X",
+"X                            ##########                    X",
+"X                            #        #                    X",
+"X                            #######  #                    X",
+"X       XXXX    #########             #                    X",
+"X          X            #       ########                   X",
+"X         XXXXXXXXXX    #             #                    X",
+"X         X     X       #             #                    X",
+"X         XXXXX X       #                                  X",
+"X               X       #                                  X",
+"X                       #                                  X",
+"X       #################                                  X",
 "X                                                          X",
 "X                                                          X",
 "X                                                          X",
@@ -26,13 +26,19 @@ var MAP = [
 "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ];
 
+var WOLF_XS = 10;
+var WOLF_YS = 10;
+var WOLF_W = W-20;
+var WOLF_H = H-100;
+
 var VIEW_ANGLE = 70;
 var SLICE_W = 5;
-var VIEW_STEP = VIEW_ANGLE/(W/SLICE_W);
-var RAY_STEP = 0.05;
+var VIEW_STEP = VIEW_ANGLE/(WOLF_W/SLICE_W);
+var RAY_STEP = 0.01;
 var MAX_RAY_LENGTH = 10;
 var WALL_HEIGHT = 200;
 var wolf_pl;
+
 
 function wolf_init() {
     TARGET_FRAME_TIME = 1000 / 30;
@@ -95,23 +101,51 @@ function wolf_cast_ray(start, dir) {
             return {dist: i*correction, type: c};
         }
     }
-    return {dist: i, type: c};
+    return {dist: i, type: "0"};
 }
 
-function wolf_gradient(x) {
+var grad_range = 170;
+function wolf_gradient(wall) {
+    var x = wall.dist;
     var i = Math.round(x*(255/MAX_RAY_LENGTH));
-    return "rgb(" + i + "," + i + "," + i + ")";
+    var r, b, g;
+    switch (wall.type) {
+    // normal wall
+    case "X":
+        r = Math.round(200-i/4);
+        b = Math.round(200-i/4);
+        g = Math.round(200-i/4);
+        break;
+    // brown wall
+    case "#":
+        r = Math.round(128-i/4);
+        b = Math.round(90-i/3);
+        g = Math.round(90-i/3);
+        break;
+    // void
+    case "0":
+        r = 0;
+        b = 0;
+        g = 0;
+        break;
+    }
+    return "rgb(" + r + "," + b + "," + g + ")";
 }
 
 function wolf_draw_slice(i, wall) {
     var h = WALL_HEIGHT / wall.dist
-    CTX.fillStyle = wolf_gradient(wall.dist);
-    CTX.fillRect(i*SLICE_W, (H-h)/2, SLICE_W, h);
+    CTX.fillStyle = wolf_gradient(wall);
+    CTX.fillRect(WOLF_XS+i*SLICE_W, WOLF_YS+(WOLF_H-h)/2, SLICE_W, h);
 }
 
 function wolf_frame(dt) {
     var wall;
-    clear("#00ff00");
+    // ceiling
+    CTX.fillStyle = "#383838";
+    CTX.fillRect(WOLF_XS, WOLF_YS, WOLF_W, WOLF_H/2);
+    // floor
+    CTX.fillStyle = "#0a0a0a";
+    CTX.fillRect(WOLF_XS, WOLF_H/2, WOLF_W, WOLF_H/2);
     wolf_ctrl_pl(dt);
     for (var x = wolf_pl.yaw-VIEW_ANGLE/2, i = 0;
          x < wolf_pl.yaw+VIEW_ANGLE/2;
@@ -120,6 +154,12 @@ function wolf_frame(dt) {
         wall = wolf_cast_ray(wolf_pl.pos, x);
         wolf_draw_slice(i, wall);
     }
+    // border
+    CTX.fillStyle = "#00a0a0";
+    CTX.fillRect(0, 0, W, 10);
+    CTX.fillRect(0, 0, 10, H);
+    CTX.fillRect(W-10, 0, 10, H);
+    CTX.fillRect(0, H-100, W, 100);
     return true;
 }
 
