@@ -16,7 +16,10 @@ function clear(col) {
 
 var KEY = {
     up: false,
-    down: false
+    down: false,
+    left: false,
+    right: false,
+    space: false
 }
 
 function key_change(code, down) {
@@ -29,6 +32,17 @@ function key_change(code, down) {
     case 40:
     case 83:
         k = "down";
+        break;
+    case 65:
+    case 37:
+        k = "left";
+        break
+    case 68:
+    case 39:
+        k = "right";
+        break;
+    case 32:
+        k = "space";
         break;
     }
     if (down) {

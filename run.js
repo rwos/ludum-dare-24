@@ -10,7 +10,7 @@ var TARGET_FRAME_TIME = 1000 / 60;
 var TIMEOUT;
 
 var LEVELS = ["pong", "asteroids"]
-var NEXT_LEVEL = 0;
+var NEXT_LEVEL = 1;
 var frame_fun = pong_frame;
 var frame_ret;
 var ctrl_hint_fun = pong_ctrl_hint;
@@ -19,7 +19,7 @@ function display_ctrl_hint() {
     var s = "<pre>";
     var hints = ctrl_hint_fun();
     for (var key in hints) {
-        s += "<b>" + key + "</b>\t--- " + hints[key] + "\n";
+        s += "<b>" + key + "</b> --- " + hints[key] + "\n";
     }
     document.getElementById("ctrl-hint").innerHTML = s + "</pre>";
 }
