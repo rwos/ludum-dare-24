@@ -27,6 +27,12 @@ function advance_ball(dt) {
     }
 }
 
+function draw_paddle(x, y) {
+    CTX.fillStyle = "#33dd33";
+    CTX.fillRect(x, y-5, 5, 70);
+
+}
+
 function draw_ball() {
     CTX.fillStyle = "#33dd33";
     CTX.beginPath();
@@ -38,4 +44,6 @@ function pong_frame(dt) {
     advance_ball(dt);
     clear("#000000");
     draw_ball();
+    draw_paddle(15, pong_py);
+    draw_paddle(W-15, pong_ey);
 }
