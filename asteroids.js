@@ -22,7 +22,7 @@ function asteroids_init() {
     as_vely = 0;
     as_bullets = [];
     as_teroids = [];
-    var posx, posy;
+    var posx, posy, velx, vely;
     var dpos = H/4;
     for (var i = 0; i < 5; i++) {
         switch (rand(0, 4)) {
@@ -43,9 +43,17 @@ function asteroids_init() {
                 posy = rand(H-dpos, H+dpos);
                 break;
         }
+        velx = rand(-4, 4)/150;
+        vely = rand(-4, 4)/150;
+        if (velx == 0) {
+            velx = 1/500;
+        }
+        if (vely == 0) {
+            vely = 1/500;
+        }
         as_teroids.push({
             pos: [posx, posy],
-            vel: [rand(-1, 1)/500, rand(-1, 1)/50],
+            vel: [velx, vely],
             sz: rand(2, 3)
         });
     }
@@ -83,27 +91,92 @@ function as_draw_teroids() {
     var a;
     for (var i=0; i<as_teroids.length; i++) {
         a = as_teroids[i];
-        CTX.lineWidth = 2;
-        CTX.strokeStyle = "#FFF";
-        CTX.beginPath();
-        CTX.arc(a.pos[0], a.pos[1], a.sz*AS_SIZE, 0, 2 * Math.PI, false);
-        CTX.stroke();
+        if (a.sz > 0) {
+            CTX.lineWidth = 2;
+            CTX.strokeStyle = "#FFF";
+            CTX.beginPath();
+            CTX.arc(a.pos[0], a.pos[1], a.sz*AS_SIZE, 0, 2 * Math.PI, false);
+            CTX.stroke();
+        }
     }
 }
 
+function as_draw_bullets() {
+    var b;
+    for (var i=0; i<as_bullets.length; i++) {
+        b = as_bullets[i];
+        if (b.live) {
+            CTX.fillStyle = "#FFF";
+            CTX.beginPath();
+            CTX.arc(b.pos[0], b.pos[1], 2, 0, 2 * Math.PI, false);
+            CTX.fill();
+        }
+    }
+}
+
+function as_bullet_hit(x, y) {
+    var a, dist, xd, yd;
+    for (var i=0; i<as_teroids.length; i++) {
+        a = as_teroids[i];
+        if (a.sz <= 0)
+            continue;
+        xd = a.pos[0] - x;
+        yd = a.pos[1] - y;
+        dist = Math.sqrt(xd*xd + yd*yd);
+        if (dist < (a.sz*AS_SIZE)) {
+            // HIT!
+            a.sz -= 1;
+            if (a.sz <= 0) {
+                return true;
+            }
+            // make sub-asteroids
+            a.pos[0] += a.sz*15;
+            a.pos[1] += a.sz*15;
+            a.vel[0] *= 2;
+            a.vel[1] *= 2;
+            as_teroids.push({
+                pos: [a.pos[0]-a.sz*20, a.pos[1]-a.sz*20],
+                vel: [a.vel[0]*-1, a.vel[1]],
+                sz: a.sz
+            });
+            as_teroids.push({
+                pos: [a.pos[0]+a.sz*20, a.pos[1]-a.sz*20],
+                vel: [a.vel[0]*-1, a.vel[1]*-1],
+                sz: a.sz
+            });
+            as_teroids.push({
+                pos: [a.pos[0]-a.sz*20, a.pos[1]+a.sz*20],
+                vel: [a.vel[0], a.vel[1]*-1],
+                sz: a.sz
+            });
+            return true;
+        }
+    }
+    return false;
+}
+
 function asteroids_frame(dt) {
+    var win_cond = false;
     as_ctrl(dt);
-    as_ctrl_teroids(dt);
+    win_cond = as_ctrl_teroids(dt);
     as_ctrl_bullets(dt);
     as_draw_teroids();
+    as_draw_bullets();
     as_draw_ship();
+    if (win_cond) {
+        return "next";
+    }
     return true;
 }
 
 function as_ctrl_teroids(dt) {
-    var a;
+    var a, asteroids_left;
+    asteroids_left = false;
     for (var i=0; i<as_teroids.length; i++) {
         a = as_teroids[i];
+        if (a.sz <= 0)
+            continue;
+        asteroids_left = true;
         a.pos[0] += a.vel[0] * dt;
         a.pos[1] += a.vel[1] * dt;
         if (a.pos[0] > W+20) {
@@ -123,6 +196,7 @@ function as_ctrl_teroids(dt) {
             a.pos[1] = -20;
         }
     }
+    return (! asteroids_left);
 }
 
 function as_ctrl_bullets(dt) {
@@ -137,9 +211,15 @@ function as_ctrl_bullets(dt) {
             || (b.pos[0] < -20)
             || (b.pos[1] > H+20)
             || (b.pos[1] < -20)) {
+                // bullet gone missing
                 b.live = false;
+            } else if (as_bullet_hit(b.pos[0], b.pos[1])) {
+                // bullet hit asteroid
+                b.live = false;
+            } else {
+                // bullet on it's normal way
+                new_bullets.push(b);
             }
-            new_bullets.push(b);
         }
     }
     as_bullets = new_bullets;
@@ -171,13 +251,13 @@ function as_ctrl(dt) {
     while (as_dir < 0) as_dir += 360;
     if (KEY.space) {
         var ang = deg2rad(as_dir) + Math.PI;
-        bvelx -= Math.sin(ang)*dt;
-        bvely += Math.cos(ang)*dt;
+        var bvelx = -Math.sin(ang)/5;
+        var bvely = Math.cos(ang)/5;
         as_bullets.push({
             pos: [as_x, as_y],
             vel: [bvelx, bvely],
             live: true
-       }
+        });
     }
 }
 
