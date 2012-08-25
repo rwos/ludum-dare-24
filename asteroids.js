@@ -155,6 +155,24 @@ function as_bullet_hit(x, y) {
     return false;
 }
 
+function as_player_hit() {
+
+    var a, dist, xd, yd;
+    for (var i=0; i<as_teroids.length; i++) {
+        a = as_teroids[i];
+        if (a.sz <= 0)
+            continue;
+        xd = a.pos[0] - as_x;
+        yd = a.pos[1] - as_y;
+        dist = Math.sqrt(xd*xd + yd*yd);
+        if (dist < (a.sz*AS_SIZE + AS_SHIP_W/2)) {
+            // HIT!
+            return true;
+        }
+    }
+    return false;
+}
+
 function asteroids_frame(dt) {
     var win_cond = false;
     as_ctrl(dt);
@@ -163,10 +181,13 @@ function asteroids_frame(dt) {
     as_draw_teroids();
     as_draw_bullets();
     as_draw_ship();
-    if (win_cond) {
-        return "next";
+    if (as_player_hit()) {
+        return false; // lost
     }
-    return true;
+    if (win_cond) {
+        return "next"; // won
+    }
+    return true; // go on
 }
 
 function as_ctrl_teroids(dt) {
