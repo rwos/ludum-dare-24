@@ -52,7 +52,7 @@ function wolf_init() {
 function wolf_map_at(x, y) {
     var ix = Math.round(x);
     var iy = Math.round(y);
-    if (iy < 0 || iy > WOLF_MAP.length || ix < 0 || ix > WOLF_MAP[iy].length) {
+    if (iy < 0 || iy >= WOLF_MAP.length || ix < 0 || ix > WOLF_MAP[iy].length) {
         return " ";
     }
     return WOLF_MAP[iy][ix];

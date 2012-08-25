@@ -1,14 +1,16 @@
 var BROS_MAP = [
-"                                                                 ",
-"                                                                 ",
-"                                                       o         ",
-"                                                nnn    |         ",
-"                                               nnnn    |         ",
-"                                      GG      nnnnn    |         ",
-"       GG  G                  n              nnnnnn    |         ",
-"]            x       nn  nn xnn  n    n     nnnnnnn    |         ",
-"=============== =======  ======  ================================",
-"############### #######  ######  ################################"
+"                                                                    ",
+"                                                                    ",
+"                                                          o         ",
+"                                                   nnn    |         ",
+"                                                  nnnn    |         ",
+"                                      GG         nnnnn    |         ",
+"       GG  G                    n               nnnnnn    |         ",
+"]            x       nn       xnn   n    n     nnnnnnn    |         ",
+"===============  =======   ======   ================================",
+"###############  #######   ######   ################################",
+"###############  #######   ######   ################################",
+"###############  #######   ######   ################################"
 ];
 
 var bros_pos;
@@ -17,15 +19,15 @@ var bros_yvel;
 
 var bros_world_off;
 
-var BROS_T_SZ = 50;
+var BROS_T_SZ = 40;
 
-var BROS_PL_H = 60;
-var BROS_PL_W = 40;
+var BROS_PL_H = 2*BROS_T_SZ;
+var BROS_PL_W = BROS_T_SZ;
 
 function bros_map_at(x, y) {
     var ix = Math.round(x);
     var iy = Math.round(y);
-    if (iy < 0 || iy > BROS_MAP.length || ix < 0 || ix > BROS_MAP[iy].length) {
+    if (iy < 0 || iy >= BROS_MAP.length || ix < 0 || ix > BROS_MAP[iy].length) {
         return " ";
     }
     return BROS_MAP[iy][ix];
@@ -39,14 +41,50 @@ function bros_init() {
 }
 
 function bros_ctrl_pl(dt) {
+    var oldpos = [bros_pos[0], bros_pos[1]];;
+    // world offset (camera)
+    if (bros_pos[0]*BROS_PL_W > W/2) {
+        bros_world_off -= 1;
+    }
+    // gravity
     var grav = 0.001;
-    bros_yvel -= grav;
+    if (! bros_rest) {
+        bros_yvel -= grav;
+    }
+    // input
+    var spd = 0.005;
+    if (KEY.right) {
+        bros_pos[0] += spd*dt;
+    }
+    if (KEY.left) {
+        bros_pos[0] -= spd*dt;
+    }
+    if (bros_rest && (KEY.space || KEY.up)) {
+        bros_rest = false;
+        bros_yvel += 20*grav;
+    }
     bros_pos[1] -= bros_yvel*dt;
+    // collision
+    if (
+        // bottom left
+        bros_map_at(Math.floor(bros_pos[0]), Math.floor(bros_pos[1])) != " "
+        // bottom right
+    ||  bros_map_at(Math.ceil(bros_pos[0]), Math.floor(bros_pos[1])) != " "
+    ) {
+        bros_pos[1] = Math.floor(bros_pos[1]);
+        bros_yvel = 0;
+        bros_rest = true;
+    } else {
+        bros_rest = false;
+    }
 }
 
 function bros_draw_pl() {
     CTX.fillStyle = "#aa7777";
-    CTX.fillRect(bros_pos[0]*BROS_T_SZ, bros_pos[1]*BROS_T_SZ-BROS_PL_H, BROS_PL_W, BROS_PL_H);
+    CTX.fillRect(
+            bros_pos[0]*BROS_T_SZ + bros_world_off,
+            bros_pos[1]*BROS_T_SZ-BROS_PL_H,
+            BROS_PL_W, BROS_PL_H);
 }
 
 function bros_draw_tile(x, y, c, off) {
@@ -84,13 +122,14 @@ function bros_frame(dt) {
     bros_ctrl_pl(dt);
     bros_draw_map();
     bros_draw_pl();
-    document.getElementById("d").innerHTML = bros_pos[0] + " - " + bros_pos[1];
+    document.getElementById("d").innerHTML = bros_pos[0] + " - " + bros_pos[1] + " ("
+        + bros_rest + ")" + " - " + bros_world_off;
     return true;
 }
 
 function bros_ctrl_hint() {
-    return {"a or left-arrow ": "left",
-            "d or right-arrow": "right",
-            "space           ": "jump"};
+    return {"a or left-arrow       ": "left",
+            "d or right-arrow      ": "right",
+            "w or up-arrow or space": "jump"};
 }
 
