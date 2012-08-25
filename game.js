@@ -23,6 +23,8 @@ var KEY = {
     down: false,
     left: false,
     right: false,
+    sleft: false,
+    sright: false,
     space: false
 }
 
@@ -47,6 +49,12 @@ function key_change(code, down) {
         break;
     case 32:
         k = "space";
+        break;
+    case 81:
+        k = "sleft";
+        break;
+    case 69:
+        k = "sright";
         break;
     }
     if (down) {
