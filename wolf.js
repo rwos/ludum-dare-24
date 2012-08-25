@@ -28,8 +28,9 @@ var WOLF_MAP = [
 
 var WOLF_XS = 20;
 var WOLF_YS = 20;
+var WOLF_HS = 100;
 var WOLF_W = W-WOLF_XS
-var WOLF_H = H-100;
+var WOLF_H = H-WOLF_HS;
 
 var VIEW_ANGLE = 70;
 var SLICE_W = 5;
@@ -159,7 +160,7 @@ function wolf_frame(dt) {
     CTX.fillRect(0, 0, W, WOLF_YS);
     CTX.fillRect(0, 0, WOLF_XS, H);
     CTX.fillRect(W-WOLF_XS, 0, WOLF_XS, H);
-    CTX.fillRect(0, H-100, W, 100);
+    CTX.fillRect(0, H-WOLF_HS, W, WOLF_HS);
     return true;
 }
 
