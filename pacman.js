@@ -21,28 +21,50 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 var map = [
 ["X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X"],
 ["X",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".","X",".",".",".",".",".",".",".",".",".",".",".",".","O","X"],
-["X",".","X","X","X","X","X",".","X","X","X","X","X","X","X","X","X",".","X","X","X","X","X","X","X","X","X","X","X",".","X"],
-["X",".","X","X","X","X","X",".","X","X","X","X","X","X","X","X","X",".","X","X","X","X","X","X","X","X","X","X","X",".","X"],
+["X",".","X","X","X","X","X",".","X","X","X","X","X","X","X",".","X",".","X","X","X","X","X","X","X","X","X","X","X",".","X"],
+["X",".","X","X","X","X","X",".","X","X","X","X","X","X","X",".","X",".","X","X","X","X","X","X","X","X","X","X","X",".","X"],
 ["X",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".","X"],
 ["X",".","X","X","X","X","X",".","X","X",".","X","X","X","X","X","X","X","X","X","X","X",".","X","X",".","X","X","X",".","X"],
 ["X","O",".",".",".",".",".",".","X","X",".",".",".",".",".",".","X",".","O",".",".",".",".","X","X",".",".",".",".",".","X"],
-["X","X","X","X","X","X","X",".","X","X","X","X","X","X","X",".","X",".","X","X","X","X","X","X","X",".","X","X","X","X","X"],
-[" "," "," "," "," "," ","X",".","X","X",".",".",".",".",".",".",".",".",".",".",".",".",".","X","X",".","X"],
-["X","X","X","X","X","X","X",".","X","X",".","X","X","X","X","X","-","X","X","X","X","X",".","X","X",".","X","X","X","X","X"],
+["X",".","X","X","X","X","X",".","X","X","X","X","X","X","X",".","X",".","X","X","X","X","X","X","X",".","X","X","X",".","X"],
+["X",".","X"," "," "," ","X",".","X","X",".",".",".",".",".",".",".",".",".",".",".",".",".","X","X",".","X", " ", "X", ".", "X"],
+["X",".","X","X","X","X","X",".","X","X",".","X","X","X","X","X","-","X","X","X","X","X",".","X","X",".","X","X","X",".","X"],
 ["X",".",".",".",".",".",".",".",".",".",".","X"," ","a"," ","b"," ","c"," ","d"," ","X",".",".",".",".",".",".",".",".","X"],
 ["X","X","X","X","X","X","X",".","X","X",".","X","X","X","X","X","X","X","X","X","X","X",".","X","X",".","X","X","X","X","X"],
 [" "," "," "," "," "," ","X",".","X","X",".","X","X","X","X","X","X","X","X","X","X","X",".","X","X",".","X"],
 ["X","X","X","X","X","X","X",".","X","X",".","X","X","X","X","X","X","X","X","X","X","X",".","X","X",".","X","X","X","X","X"],
 ["X","O",".",".",".",".",".",".",".",".",".",".",".",".",".","X","X",".",".",".",".",".",".",".",".",".",".",".",".","O","X"],
-["X",".","X","X","X",".","X","X","X","X","X","X","X","X",".","X","X",".","X","X","X","X","X","X","X","X","X","X"," ",".","X"],
+["X",".","X","X","X",".","X","X","X","X","X","X","X","X",".","X","X",".","X","X","X","X","X","X","X","X","X","X","X",".","X"],
 ["X",".",".",".",".","p",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".",".","X"],
 ["X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X","X"]
 ];
 
 var PM_TILE_SZ = Math.round((W-40)/map[0].length);
 
-function pacman_init() {
+var pm_x;
+var pm_y;
+var pm_dir;
+var pm_next_dir;
+var pm_eat;
+var pm_anim;
 
+function pm_pos() {
+    for (var y=0; y<map.length; y++) {
+        for (var x=0; x<map[y].length; x++) {
+            if (map[y][x] == "p")
+                return [x, y];
+        }
+    }
+}
+
+function pacman_init() {
+    var pos = pm_pos();
+    pm_x = pos[0];
+    pm_y = pos[1];
+    pm_dir = "right";
+    pm_next_dir = "right";
+    pm_eat = false;
+    pm_anim = 0;
 }
 
 function pm_draw_map(blink) {
@@ -57,7 +79,7 @@ function pm_draw_map(blink) {
                 CTX.fillStyle = "#ffff33";
                 CTX.beginPath();
                 var off = PM_TILE_SZ/2;
-                CTX.arc(x*PM_TILE_SZ+dx+off, y*PM_TILE_SZ+dy+off, PM_TILE_SZ/5, 0, 2 * Math.PI, false);
+                CTX.arc(x*PM_TILE_SZ+dx+off, y*PM_TILE_SZ+dy+off, PM_TILE_SZ/6, 0, 2 * Math.PI, false);
                 CTX.fill();
             } else if (map[y][x] == "O" && blink) {
                 CTX.fillStyle = "#ffffff";
@@ -70,12 +92,117 @@ function pm_draw_map(blink) {
     }
 }
 
+function pm_collision() {
+    var c = map[pm_y][pm_x];
+    if (c == " " || c == ".")
+        return false;
+    if (c == "O") {
+        pm_eat = true;
+        return false;
+    }
+    if (c == "a" || c == "b" || c == "c" || c == "d") {
+        alert("MONSTER HIT!");
+    }
+    return true;
+}
+
+function move_into_dir(dir) {
+    switch (dir) {
+    case "right":
+        pm_x +=1;
+        break;
+    case "left":
+        pm_x -=1;
+        break;
+    case "up":
+        pm_y -=1;
+        break;
+    case "down":
+        pm_y +=1;
+        break;
+    }
+}
+
+function move_reverse_dir(dir) {
+    switch (dir) {
+    case "right":
+        pm_x -=1;
+        break;
+    case "left":
+        pm_x +=1;
+        break;
+    case "up":
+        pm_y +=1;
+        break;
+    case "down":
+        pm_y -=1;
+        break;
+    }
+}
+
+function pm_ctrl() {
+    console.log(pm_dir, pm_next_dir);
+    map[pm_y][pm_x] = " ";
+    if (KEY.up) {
+        pm_next_dir = "up";
+    } else if (KEY.down) {
+        pm_next_dir = "down";
+    } else if (KEY.left) {
+        pm_next_dir = "left";
+    } else if (KEY.right) {
+        pm_next_dir = "right";
+    }
+}
+function pm_move(dt) {
+    // check if next_dir is possible
+    if ((pm_next_dir != pm_dir)
+    && (   (!(pm_next_dir == "up"    && pm_dir == "down"))
+        && (!(pm_next_dir == "down"  && pm_dir == "up"))
+        && (!(pm_next_dir == "left"  && pm_dir == "right"))
+        && (!(pm_next_dir == "right" && pm_dir == "left")))) {
+        move_into_dir(pm_next_dir);
+        if (pm_collision()) {
+            move_reverse_dir(pm_next_dir);
+            // next_dir was not possible, trying dir
+            move_into_dir(pm_dir);
+            if (pm_collision()) {
+                // dir also not possible -> stop
+                move_reverse_dir(pm_dir);
+            }
+        } else {
+            // next_dir was possible
+            pm_dir = pm_next_dir;
+        }
+    } else {
+        // next_dir was not possible, trying dir
+        move_into_dir(pm_dir);
+        if (pm_collision()) {
+            // dir also not possible -> stop
+            move_reverse_dir(pm_dir);
+        }
+    }
+}
+
+function pm_draw() {
+    var dx = Math.round((W-(map[0].length*PM_TILE_SZ))/2);
+    var dy = Math.round((H-(map.length*PM_TILE_SZ))/2)-30;
+    CTX.fillStyle = "#ffff33";
+    CTX.beginPath();
+    var off = PM_TILE_SZ/2;
+    CTX.arc(pm_x*PM_TILE_SZ+dx+off, pm_y*PM_TILE_SZ+dy+off, PM_TILE_SZ/2, 0, 2 * Math.PI, false);
+    CTX.fill();
+
+}
+
 var cnt = 0;
 function pacman_frame(dt) {
-    pm_draw_map((cnt++ > 10));
-    if (cnt > 30) {
+    pm_draw_map((cnt++ > 2));
+    pm_ctrl(dt);
+    if (cnt > 10) {
         cnt = 0;
+        pm_move(dt);
     }
+    pm_draw();
 
     return true; // go on
 }
