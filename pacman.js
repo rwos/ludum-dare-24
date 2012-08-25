@@ -49,17 +49,26 @@ var pm_eat;
 var pm_anim;
 var pm_door_open;
 
-function pm_pos() {
+var pm_apos;
+var pm_bpos;
+var pm_cpos;
+var pm_dpos;
+var pm_alast;
+var pm_blast;
+var pm_clast;
+var pm_dlast;
+
+function pm_pos(c) {
     for (var y=0; y<map.length; y++) {
         for (var x=0; x<map[y].length; x++) {
-            if (map[y][x] == "p")
+            if (map[y][x] == c)
                 return [x, y];
         }
     }
 }
 
 function pacman_init() {
-    var pos = pm_pos();
+    var pos = pm_pos("p");
     pm_x = pos[0];
     pm_y = pos[1];
     pm_dir = "right";
@@ -67,11 +76,21 @@ function pacman_init() {
     pm_eat = false;
     pm_anim = 0;
     pm_door_open = false;
+    // ghosts
+    pm_apos = pm_pos("a");
+    pm_bpos = pm_pos("b");
+    pm_cpos = pm_pos("c");
+    pm_dpos = pm_pos("d");
+    pm_alast = " ";
+    pm_blast = " ";
+    pm_clast = " ";
+    pm_dlast = " ";
 }
 
 function pm_draw_map(blink) {
     var dx = Math.round((W-(map[0].length*PM_TILE_SZ))/2);
     var dy = Math.round((H-(map.length*PM_TILE_SZ))/2)-30;
+    clear("#000000");
     for (var y=0; y<map.length; y++) {
         for (var x=0; x<map[y].length; x++) {
             if (map[y][x] == "X") {
@@ -92,6 +111,23 @@ function pm_draw_map(blink) {
             } else if (map[y][x] == "-" && (! pm_door_open)) {
                 CTX.fillStyle = "#774400";
                 CTX.fillRect(x*PM_TILE_SZ+dx, y*PM_TILE_SZ+dy, PM_TILE_SZ, PM_TILE_SZ);
+            } else if (map[y][x] == "a" || map[y][x] == "b" || map[y][x] == "c" || map[y][x] == "d") {
+                if (pm_eat) {
+                    CTX.fillStyle = "#5555ff";
+                } else if (map[y][x] == "a") {
+                    CTX.fillStyle = "#00ffff";
+                } else if (map[y][x] == "b") {
+                    CTX.fillStyle = "#ff00ff";
+                } else if (map[y][x] == "c") {
+                    CTX.fillStyle = "#dddd00";
+                } else if (map[y][x] == "d") {
+                    CTX.fillStyle = "#ff0000";
+                }
+                CTX.beginPath();
+                var off = PM_TILE_SZ/2;
+                CTX.arc(x*PM_TILE_SZ+dx+off, y*PM_TILE_SZ+dy+off, PM_TILE_SZ/3, Math.PI, 0, false);
+                CTX.fillRect(x*PM_TILE_SZ+dx+off/4, y*PM_TILE_SZ+dy+PM_TILE_SZ/2, PM_TILE_SZ/1.3, PM_TILE_SZ/2);
+                CTX.fill();
             }
         }
     }
@@ -106,7 +142,19 @@ function pm_collision() {
         return false;
     }
     if (c == "a" || c == "b" || c == "c" || c == "d") {
-        alert("MONSTER HIT!");
+        alert("MONSTER HIT by player!");
+        return true;
+    }
+    return true;
+}
+
+function pm_ghost_collision(x, y) {
+    var c = map[y][x];
+    if (c == " " || c == "." || c == "-" || c == "a" || c == "b" || c == "c" || c == "d")
+        return false;
+    if (x == pm_x && y == pm_y) {
+        alert("MONSTER HIT by ghost!");
+        return true;
     }
     return true;
 }
@@ -146,7 +194,6 @@ function move_reverse_dir(dir) {
 }
 
 function pm_ctrl() {
-    console.log(pm_dir, pm_next_dir);
     map[pm_y][pm_x] = " ";
     if (KEY.up) {
         pm_next_dir = "up";
@@ -188,6 +235,45 @@ function pm_move(dt) {
     }
 }
 
+function pm_ctrl_ghosts() {
+    var oldpos;
+    var ghosts = ["a", "b", "c", "d"];
+    for (var i = 0; i < ghosts.length; i++) {
+        pos = eval("pm_" + ghosts[i] + "pos");
+        last = eval("pm_" + ghosts[i] + "last");
+        oldpos = pos;
+        switch (rand(0, 4)) {
+            case 0:
+                pos[0] += 1;
+                if (pm_ghost_collision(pos[0], pos[1]))
+                    pos[0] -= 1;
+                break;
+            case 1:
+                pos[1] += 1;
+                if (pm_ghost_collision(pos[0], pos[1]))
+                    pos[1] -= 1;
+                break;
+            case 2:
+                pos[0] -= 1;
+                if (pm_ghost_collision(pos[0], pos[1]))
+                    pos[0] += 1;
+                break;
+            case 3:
+                pos[1] -= 1;
+                if (pm_ghost_collision(pos[0], pos[1]))
+                    pos[1] += 1;
+                break;
+        }
+        map[oldpos[1]][oldpos[0]] = last;
+        last = map[pos[1]][pos[0]];
+        map[pos[1]][pos[0]] = ghosts[i];
+        eval("pm_" + ghosts[i] + "pos[0] = " + pos[0]);
+        eval("pm_" + ghosts[i] + "pos[1] = " + pos[1]);
+        eval("pm_" + ghosts[i] + "last = '" + last + "'");
+    }
+}
+
+
 function pm_draw() {
     var dx = Math.round((W-(map[0].length*PM_TILE_SZ))/2);
     var dy = Math.round((H-(map.length*PM_TILE_SZ))/2)-30;
@@ -200,12 +286,25 @@ function pm_draw() {
 }
 
 var cnt = 0;
+var cnt2 = 0;
+var cnt3 = 0;
 function pacman_frame(dt) {
     pm_draw_map((cnt++ > 2));
     pm_ctrl(dt);
     if (cnt > 10) {
         cnt = 0;
         pm_move(dt);
+        if (pm_door_open)
+            pm_ctrl_ghosts();
+    }
+    if (cnt2++ > 150) {
+        pm_door_open = true;
+    }
+    if (pm_eat) {
+        if (cnt3++ > 350) {
+            pm_eat = false;
+            cnt3 = 0;
+        }
     }
     pm_draw();
 
@@ -217,5 +316,6 @@ function pacman_ctrl_hint() {
             "s or down-arrow ": "down",
             "a or left-arrow ": "left",
             "d or right-arrow": "right",
+            "you've got to mash the keys a bit, here": "there are quite a few bugs...",
     };
 }
