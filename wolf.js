@@ -27,11 +27,11 @@ var MAP = [
 ];
 
 var VIEW_ANGLE = 70;
-var SLICE_W = 1;
+var SLICE_W = 5;
 var VIEW_STEP = VIEW_ANGLE/(W/SLICE_W);
-var RAY_STEP = 0.1;
+var RAY_STEP = 0.05;
 var MAX_RAY_LENGTH = 10;
-var WALL_HEIGHT = 100;
+var WALL_HEIGHT = 200;
 var wolf_pl;
 
 function wolf_init() {
