@@ -26,9 +26,9 @@ var MAP = [
 "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ];
 
-var WOLF_XS = 10;
-var WOLF_YS = 10;
-var WOLF_W = W-20;
+var WOLF_XS = 20;
+var WOLF_YS = 20;
+var WOLF_W = W-WOLF_XS
 var WOLF_H = H-100;
 
 var VIEW_ANGLE = 70;
@@ -145,7 +145,7 @@ function wolf_frame(dt) {
     CTX.fillRect(WOLF_XS, WOLF_YS, WOLF_W, WOLF_H/2);
     // floor
     CTX.fillStyle = "#0a0a0a";
-    CTX.fillRect(WOLF_XS, WOLF_H/2, WOLF_W, WOLF_H/2);
+    CTX.fillRect(WOLF_XS, WOLF_H/2+20, WOLF_W, WOLF_H/2);
     wolf_ctrl_pl(dt);
     for (var x = wolf_pl.yaw-VIEW_ANGLE/2, i = 0;
          x < wolf_pl.yaw+VIEW_ANGLE/2;
@@ -156,9 +156,9 @@ function wolf_frame(dt) {
     }
     // border
     CTX.fillStyle = "#00a0a0";
-    CTX.fillRect(0, 0, W, 10);
-    CTX.fillRect(0, 0, 10, H);
-    CTX.fillRect(W-10, 0, 10, H);
+    CTX.fillRect(0, 0, W, WOLF_YS);
+    CTX.fillRect(0, 0, WOLF_XS, H);
+    CTX.fillRect(W-WOLF_XS, 0, WOLF_XS, H);
     CTX.fillRect(0, H-100, W, 100);
     return true;
 }

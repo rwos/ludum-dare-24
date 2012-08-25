@@ -36,7 +36,7 @@ function pong_advance_ball(dt) {
     if (pong_bx > W-PONG_PADDLE_X-PONG_BSZ) {
         if (pong_by < pong_ey || pong_by > pong_ey+PONG_PADDLE_H) {
             pong_ppoints += 1;
-            PONG_BSZ += 2;
+            PONG_BSZ += 1;
         }
         pong_bdx *= -1;
         pong_bx = W-PONG_PADDLE_X-PONG_BSZ;
@@ -64,16 +64,10 @@ function pong_draw_paddle(x, y) {
 }
 
 function pong_draw_ball() {
-    CTX.strokeStyle = "#33dd33";
-    var lw = 10 - PONG_BSZ;
-    if (lw < 2) {
-        lw = 2;
-    }
-    CTX.lineWidth = lw;
-
+    CTX.fillStyle = "#33dd33";
     CTX.beginPath();
     CTX.arc(pong_bx, pong_by, PONG_BSZ*2, 0, 2 * Math.PI, false);
-    CTX.stroke();
+    CTX.fill();
 }
 
 function pong_draw_points() {

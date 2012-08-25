@@ -9,8 +9,8 @@ var TARGET_FRAME_TIME = 1000 / 60;
 
 var TIMEOUT;
 
-var LEVELS = ["pong", "asteroids", "pacman", "wolf"]
-var NEXT_LEVEL = 3;
+var LEVELS = ["pong", "breakout", "asteroids", "pacman", "wolf"]
+var NEXT_LEVEL = 1;
 var frame_fun;
 var frame_ret;
 var ctrl_hint_fun;
