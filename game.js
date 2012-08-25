@@ -10,8 +10,3 @@ function clear(col) {
     CTX.fillRect(XS, YS, W, H);
 }
 
-function main() {
-    clear("#000000");
-}
-main();
-
