@@ -90,7 +90,7 @@ function pacman_init() {
 function pm_draw_map(blink) {
     var dx = Math.round((W-(map[0].length*PM_TILE_SZ))/2);
     var dy = Math.round((H-(map.length*PM_TILE_SZ))/2)-30;
-    clear("#000000");
+    clear("#000000"); // XXX ?????????????????????????????????
     for (var y=0; y<map.length; y++) {
         for (var x=0; x<map[y].length; x++) {
             if (map[y][x] == "X") {

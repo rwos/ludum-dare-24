@@ -9,8 +9,8 @@ var TARGET_FRAME_TIME = 1000 / 60;
 
 var TIMEOUT;
 
-var LEVELS = ["pong", "breakout", "asteroids", "pacman", "wolf"]
-var NEXT_LEVEL = 1;
+var LEVELS = ["pong", "breakout", "asteroids", "pacman", "bros", "wolf"]
+var NEXT_LEVEL = 4;
 var frame_fun;
 var frame_ret;
 var ctrl_hint_fun;
@@ -40,7 +40,6 @@ function chg_level() {
 function main() {
     START_TIME = new Date().getTime();
     clearTimeout(RUNNING);
-    clear("#000000");
     END_TIME = new Date().getTime();
     TIME_DELTA = (TIME_DELTA + (END_TIME - START_TIME)) / 2;
     TIMEOUT = 1;
