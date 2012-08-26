@@ -122,6 +122,10 @@ function bros_frame(dt) {
     bros_ctrl_pl(dt);
     bros_draw_map();
     bros_draw_pl();
+    if (bros_pos[1] > 30) {
+        return false;
+    }
+
     document.getElementById("d").innerHTML = bros_pos[0] + " - " + bros_pos[1] + " ("
         + bros_rest + ")" + " - " + bros_world_off;
     return true;
