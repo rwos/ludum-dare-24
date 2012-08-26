@@ -1,29 +1,29 @@
 
 var WOLF_MAP = [
 "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-"X                                                          X",
-"X                                                          X",
-"X                                                          X",
-"X                                                          X",
-"X                                                          X",
-"X                            ##########                    X",
-"X                            #        #                    X",
-"X                            #######  #                    X",
-"X       XXXX    #########             #                    X",
-"X          X            #       ########                   X",
-"X         XXXXXXXXXX    #             #                    X",
-"X         X     X       #             #                    X",
-"X         XXXXX X       #                                  X",
-"X               X       #                                  X",
-"X                       #                                  X",
-"X       #################                                  X",
-"X                                                          X",
-"X                                                          X",
-"X                                                          X",
-"X                                                          X",
-"X                                                          X",
-"X                                                          X",
-"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+"X        O          O   X    X  O               O**********X",
+"X####### OOOOOOO  OOO   X    X  O     XXXXX     O**********X",
+"X      #            X   X    X        X   X     O  ******  X",
+"X         XXX##XXXXXX XXX    X  O     X# #X     O    #     X",
+"X      #  X             X    X  O               O   XOX    X",
+"XXXXXXXX  X  ###X# #X####    X  OOOOOXXXOOOOO  OO  X O X   X",
+"O   O     X  #     #    #OOO X        #         X    O     X",
+"O            #          #    X######  #  XXXXXXXX          X",
+"OOOOOOOOOOO  X  OOOOOOOO# XXXX        #         X OOOOOOOO X",
+"X         O  X  O       #   X   XXXXXXXXX       X     #    X",
+"XXXX##       #  O   # ##### X    X   XX         X          X",
+"X         O  #  X   #       O    X   XX   ########## OOO###X",
+"OOOOOOOOOOO  #  O   #   ### X        X    #        #       X",
+"X      X     #  O####   #   O  XXXXO O    #        #   #   X",
+"X      X     #          #   X  X  XO O    O    XXXXXXXXXX  X",
+"X  OOOOX  ############### OOO  X  XO O         X   X  O    X",
+"X      X  #            X    X  X  XO O    O    XX  X  O    X",
+"X  OOOOX  # #####  OO  X    O  X  XO O    #        #  O##  X",
+"X      X  # #      OO  X  XXX  XX XO OXX  ##########  O    X",
+"X  OOOOX    # OOXXOOO  X  X     X OO O       X             X",
+"X      X  # #       O  X  X     X OO O    X  X    XXXX OO  X",
+"X         # #       O  X        X    O    X       X    O   X",
+"XXXXXXXXXX###########OOXOOOOOOOOXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ];
 
 var WOLF_XS = 20;
@@ -40,13 +40,12 @@ var MAX_RAY_LENGTH = 10;
 var WALL_HEIGHT = 200;
 var wolf_pl;
 
-
 function wolf_init() {
     TARGET_FRAME_TIME = 1000 / 30;
     wolf_pl = {
-        pos: [8.8, 9.8],
+        pos: [1, 1],
         height: 0.5,
-        yaw: 35.3
+        yaw: 85.3
     };
 }
 
@@ -63,7 +62,14 @@ function wolf_move(start, dir, amt) {
     var a = deg2rad(dir)
     var x = Math.sin(a)*amt + start[0];
     var y = Math.cos(a)*amt + start[1];
-    return [x, y];
+    var c = wolf_map_at(x, y);
+    if (c == " ") {
+        return [x, y];
+    } else if (c == "*") {
+        wolf_won = true;
+    }
+    // no movement into walls
+    return start;
 }
 
 function wolf_ctrl_pl(dt) {
@@ -109,28 +115,34 @@ var grad_range = 170;
 function wolf_gradient(wall) {
     var x = wall.dist;
     var i = Math.round(x*(255/MAX_RAY_LENGTH));
-    var r, b, g;
+    var r, g, b;
     switch (wall.type) {
     // normal wall
     case "X":
-        r = Math.round(200-i/4);
-        b = Math.round(200-i/4);
-        g = Math.round(200-i/4);
+        r = 50;
+        g = 50;
+        b = Math.round(150-i/2);
         break;
     // brown wall
     case "#":
         r = Math.round(128-i/4);
-        b = Math.round(90-i/3);
-        g = Math.round(90-i/3);
+        g = 30;
+        b = 30;
+        break;
+    // grey wall
+    case "O":
+        r = Math.round(128-i/2);
+        g = Math.round(128-i/2);
+        b = Math.round(128-i/2);
         break;
     // void
     case "0":
         r = 0;
-        b = 0;
         g = 0;
+        b = 0;
         break;
     }
-    return "rgb(" + r + "," + b + "," + g + ")";
+    return "rgb(" + r + "," + g + "," + b + ")";
 }
 
 function wolf_draw_slice(i, wall) {
@@ -142,7 +154,7 @@ function wolf_draw_slice(i, wall) {
 function wolf_frame(dt) {
     var wall;
     // ceiling
-    CTX.fillStyle = "#383838";
+    CTX.fillStyle = "#a8a8a8";
     CTX.fillRect(WOLF_XS, WOLF_YS, WOLF_W, WOLF_H/2);
     // floor
     CTX.fillStyle = "#0a0a0a";
@@ -156,7 +168,7 @@ function wolf_frame(dt) {
         wolf_draw_slice(i, wall);
     }
     // border
-    CTX.fillStyle = "#00a0a0";
+    CTX.fillStyle = "#005050";
     CTX.fillRect(0, 0, W, WOLF_YS);
     CTX.fillRect(0, 0, WOLF_XS, H);
     CTX.fillRect(W-WOLF_XS, 0, WOLF_XS, H);
