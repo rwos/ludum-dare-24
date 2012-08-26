@@ -7,17 +7,75 @@ var tic_txt;
 
 var tic_printing;
 
+var tic_field;
+
+var tic_mouse_areas;
+
 function tic_init() {
     tic_txt = [];
     tic_printing = false;
-    set_mouse_areas([
+    tic_field = [" ", " ", " ",
+                 " ", " ", " ",
+                 " ", " ", " "];
+    var x = W-TIC_CTRL_W+10;
+    var y = 60;
+    tic_mouse_areas = [
         {
-            pos: [20, 20],
-            sz:  [20, 20],
+            pos: [x, y],
+            sz:  [40, 40],
+            hover: function() {alert("HOVER");},
+            click: function() {alert("CLICK");}
+        },
+        {
+            pos: [x+50, y],
+            sz:  [40, 40],
+            hover: function() {alert("HOVER");},
+            click: function() {alert("CLICK");}
+        },
+        {
+            pos: [x+100, y],
+            sz:  [40, 40],
+            hover: function() {alert("HOVER");},
+            click: function() {alert("CLICK");}
+        },
+        {
+            pos: [x, y+50],
+            sz:  [40, 40],
+            hover: function() {alert("HOVER");},
+            click: function() {alert("CLICK");}
+        },
+        {
+            pos: [x+50, y+50],
+            sz:  [40, 40],
+            hover: function() {alert("HOVER");},
+            click: function() {alert("CLICK");}
+        },
+        {
+            pos: [x+100, y+50],
+            sz:  [40, 40],
+            hover: function() {alert("HOVER");},
+            click: function() {alert("CLICK");}
+        },
+        {
+            pos: [x, y+100],
+            sz:  [40, 40],
+            hover: function() {alert("HOVER");},
+            click: function() {alert("CLICK");}
+        },
+        {
+            pos: [x+50, y+100],
+            sz:  [40, 40],
+            hover: function() {alert("HOVER");},
+            click: function() {alert("CLICK");}
+        },
+        {
+            pos: [x+100, y+100],
+            sz:  [40, 40],
             hover: function() {alert("HOVER");},
             click: function() {alert("CLICK");}
         }
-    ]);
+    ];
+    set_mouse_areas(tic_mouse_areas);
 }
 
 function tic_draw_bg() {
@@ -27,8 +85,15 @@ function tic_draw_bg() {
     CTX.fillStyle = "#554444";
     CTX.fillRect(W-TIC_CTRL_W-10, 40, TIC_CTRL_W-20, TIC_CTRL_H-20);
     // controls
-    // XXX TODO
-
+    var a;
+    for (var i = 0; i < tic_mouse_areas.length; i++) {
+        a = tic_mouse_areas[i];
+        CTX.fillStyle = "#cccccc";
+        CTX.fillRect(a.pos[0], a.pos[1], a.sz[0], a.sz[1]);
+        CTX.fillStyle = "#333333";
+        CTX.textAlign = "center";
+        CTX.fillText(i+"", a.pos[0]+20, a.pos[1]+28);
+    }
     // frame
     CTX.fillStyle = "#332222";
     CTX.fillRect(W-TIC_CTRL_W+10, TIC_CTRL_H+30, TIC_CTRL_W-60, TIC_CTRL_H);
@@ -44,15 +109,15 @@ function tic_print(s) {
     CTX.font = "20px monospace";
     CTX.fillStyle = "#333355";
     CTX.textAlign = "left";
-    if (rand(0, 5) == 1) {
-        tic_printing -= 1;
+    if (rand(0, 3) == 1) {
+        tic_printing -= 2;
     }
     if (tic_printing < 0)
         tic_printing = 0;
     var y;
     for (var i = 0; i < tic_txt.length; i++) {
         y = i*20+60-tic_printing;
-        if (y > H) {
+        if (y > H+50) {
             tic_txt.pop();
             continue;
         }
@@ -64,6 +129,46 @@ function tic_print(s) {
     // printer head shadow
     CTX.fillStyle = "#1f172f";
     CTX.fillRect(15, 30, TIC_PRT_W-25, 5);
+    // printing indicator
+    if (tic_printing > 0) {
+        CTX.fillStyle = "#ff3333";
+    } else {
+        CTX.fillStyle = "#441111";
+    }
+    CTX.fillRect(TIC_PRT_W-40, 10, 10, 10);
+}
+
+function tic_cmp_turn() {
+    var i = rand(0,8);
+    var free_field = false;
+    tic_line("COMPUTER TURN")
+    for (var i = 0; i < tic_field.length; i++) {
+        if (tic_field[i] != " ") {
+            continue;
+        }
+        var free_field = i
+        if (rand(0,9) == 1) {
+            tic_field[i] = "X";
+            return true;
+        }
+    }
+    if (free_field !== false) {
+        tic_field[free_field] = "X";
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function tic_draw_field() {
+    tic_line("+---+---+---+");
+    tic_line("| "+tic_field[0]+" | "+tic_field[1]+" | "+tic_field[2]+" |");
+    tic_line("+---+---+---+");
+    tic_line("| "+tic_field[3]+" | "+tic_field[4]+" | "+tic_field[5]+" |");
+    tic_line("+---+---+---+");
+    tic_line("| "+tic_field[6]+" | "+tic_field[7]+" | "+tic_field[8]+" |");
+    tic_line("+---+---+---+");
+
 }
 
 function tic_line(s) {
@@ -71,19 +176,19 @@ function tic_line(s) {
     tic_printing += 20;
 }
 
-var XXX = 20;
+var tic_first = true;
 function tic_frame(dt) {
     clear("#bbaaaa");
     tic_draw_bg();
-    if (XXX > 10) {
-        tic_line("+---+---+---+");
-        tic_line("|   |   |   |");
-        tic_line("+---+---+---+");
-        tic_line("|   |   |   |");
-        tic_line("+---+---+---+");
-        tic_line("|   |   |   |");
-        tic_line("+---+---+---+");
-        XXX --;
+    if (tic_first) {
+        tic_cmp_turn();
+        tic_draw_field();
+        tic_line("");
+        tic_line("ON THE RIGHT TO PLAY");
+        tic_line("USE THE NUMBER PAD");
+        tic_line("");
+        tic_line("COMPUTER WAITING FOR YOU");
+        tic_first = false;
     }
     tic_print();
 
