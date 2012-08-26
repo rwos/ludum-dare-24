@@ -22,10 +22,12 @@ var LEVELS = [
     "pacman",
     "pac2bros",
     "bros",
+    "bros2luc",
     "lucas",
+    "luc2wolf",
     "wolf"
 ]
-var NEXT_LEVEL = 12;
+var NEXT_LEVEL = 0;
 var frame_fun;
 var frame_ret;
 var ctrl_hint_fun;

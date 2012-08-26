@@ -282,3 +282,65 @@ function pac2bros_frame(dt) {
     return true;
 }
 function pac2bros_ctrl_hint() {return {};}
+//////////////////////////////////////////////////////////////////
+
+var bros2luc_fade;
+function bros2luc_init() {
+    bros2luc_fade = 200;
+}
+function bros2luc_frame(dt) {
+    if (bros2luc_fade > 0) {
+        CTX.fillStyle = "rgba(0, 0, 0, 0.01)";
+        CTX.fillRect(0, 0, W, H);
+        bros2luc_fade -= 1;
+    } else {
+        if (KEY.space) {
+            return "next";
+        } else {
+            CTX.fillStyle = "#aaa";
+            CTX.fillRect(100, 100, W-200, H-200);
+            CTX.lineWidth = 5;
+            CTX.stokeStyle = "#333";
+            CTX.strokeRect(100, 100, W-200, H-200);
+            CTX.font = "40px monospace";
+            CTX.fillStyle = "#111";
+            CTX.textAlign = "center";
+            CTX.fillText("You've won!", W/2, 200);
+            CTX.font = "20px monospace";
+            CTX.fillText("press space to continue", W/2, 300);
+        }
+    }
+    return true;
+}
+function bros2luc_ctrl_hint() {return {};}
+//////////////////////////////////////////////////////////////////
+
+var luc2wolf_fade;
+function luc2wolf_init() {
+    luc2wolf_fade = 200;
+}
+function luc2wolf_frame(dt) {
+    if (luc2wolf_fade > 0) {
+        CTX.fillStyle = "rgba(0, 0, 100, 0.01)";
+        CTX.fillRect(0, 0, W, H);
+        luc2wolf_fade -= 1;
+    } else {
+        if (KEY.space) {
+            return "next";
+        } else {
+            CTX.fillStyle = "#aaa";
+            CTX.fillRect(100, 100, W-200, H-200);
+            CTX.lineWidth = 5;
+            CTX.stokeStyle = "#333";
+            CTX.strokeRect(100, 100, W-200, H-200);
+            CTX.font = "40px monospace";
+            CTX.fillStyle = "#111";
+            CTX.textAlign = "center";
+            CTX.fillText("You've won!", W/2, 200);
+            CTX.font = "20px monospace";
+            CTX.fillText("press space to get psyched", W/2, 300);
+        }
+    }
+    return true;
+}
+function luc2wolf_ctrl_hint() {return {};}
