@@ -42,6 +42,7 @@ var map = [
 var PM_TILE_SZ = Math.round((W-40)/map[0].length);
 
 var pm_pos;
+var pm_init_pos;
 var pm_dir;
 var pm_next_dir;
 var pm_eat;
@@ -52,6 +53,15 @@ var pm_apos;
 var pm_bpos;
 var pm_cpos;
 var pm_dpos;
+
+var pm_init_apos;
+var pm_init_bpos;
+var pm_init_cpos;
+var pm_init_dpos;
+
+var pm_points;
+var pm_point_cnt;
+var pm_init_point_cnt;
 
 function pm_get_pos(c) {
     for (var y=0; y<map.length; y++) {
@@ -65,20 +75,44 @@ function pm_get_pos(c) {
 }
 
 function pacman_init() {
-    pm_pos = pm_get_pos("p");
+    TARGET_FRAME_TIME = 1000 / 20;
+
+    pm_point_cnt = pm_count_points_on_map();
+    pm_init_point_cnt = pm_point_cnt;
+
+    pm_init_pos = pm_get_pos("p");
+    pm_pos = [pm_init_pos[0], pm_init_pos[1]];
     pm_dir = "right";
     pm_next_dir = "right";
     pm_eat = false;
     pm_anim = 0;
     pm_door_open = false;
     // ghosts
-    pm_apos = pm_get_pos("a");
-    pm_bpos = pm_get_pos("b");
-    pm_cpos = pm_get_pos("c");
-    pm_dpos = pm_get_pos("d");
+    pm_init_apos = pm_get_pos("a");
+    pm_init_bpos = pm_get_pos("b");
+    pm_init_cpos = pm_get_pos("c");
+    pm_init_dpos = pm_get_pos("d");
+    pm_apos = [pm_init_apos[0], pm_init_apos[1]];
+    pm_bpos = [pm_init_bpos[0], pm_init_bpos[1]];
+    pm_cpos = [pm_init_cpos[0], pm_init_cpos[1]];
+    pm_dpos = [pm_init_dpos[0], pm_init_dpos[1]];
+    // level
+    pm_points = 0;
+    pm_lives = 3;
     // graphics
     clear("#000");
     pm_draw_map();
+}
+
+function pm_count_points_on_map() {
+    var a=0;
+    for (var y=0; y<map.length; y++) {
+        for (var x=0; x<map[y].length; x++) {
+            if (map[y][x] == "." || map[y][x] == "O")
+                a += 1;
+        }
+    }
+    return a;
 }
 
 function pm_draw_points(blink) {
@@ -211,7 +245,6 @@ function move_reverse_dir(dir, pos) {
 }
 
 function pm_ctrl() {
-    map[pm_pos[1]][pm_pos[0]] = " ";
     if (KEY.up) {
         pm_next_dir = "up";
     } else if (KEY.down) {
@@ -244,7 +277,7 @@ function pm_move(dir, next_dir, pos, collision_check) {
             return [true, pos];
         }
     } else {
-        // next_dir was not event tried, trying dir
+        // next_dir was not even tried, trying dir
         pos = move_into_dir(dir, pos);
         if (collision_check(pos[0], pos[1])) {
             // dir also not possible -> stop
@@ -285,18 +318,104 @@ function pm_ctrl_ghosts() {
     }
 }
 
+function pm_player_ghost_collision() {
+    if (pm_pos[0] == pm_apos[0] && pm_pos[1] == pm_apos[1]) {
+        pm_handle_player_ghost_col("a");
+    } else if (pm_pos[0] == pm_bpos[0] && pm_pos[1] == pm_bpos[1]) {
+        pm_handle_player_ghost_col("b");
+    } else if (pm_pos[0] == pm_cpos[0] && pm_pos[1] == pm_cpos[1]) {
+        pm_handle_player_ghost_col("c");
+    } else if (pm_pos[0] == pm_dpos[0] && pm_pos[1] == pm_dpos[1]) {
+        pm_handle_player_ghost_col("d");
+    }
+}
+
+function pm_handle_player_ghost_col(ghost) {
+    if (pm_eat) {
+        pm_points = Math.ceil((pm_points + 125) * 1.05);
+        if (ghost == "a") {
+            pm_apos[0] = pm_init_apos[0];
+            pm_apos[1] = pm_init_apos[1];
+        } else if (ghost == "b") {
+            pm_bpos[0] = pm_init_bpos[0];
+            pm_bpos[1] = pm_init_bpos[1];
+        } else if (ghost == "c") {
+            pm_cpos[0] = pm_init_cpos[0];
+            pm_cpos[1] = pm_init_cpos[1];
+        } else if (ghost == "d") {
+            pm_dpos[0] = pm_init_dpos[0];
+            pm_dpos[1] = pm_init_dpos[1];
+        }
+    } else {
+        pm_pos[0] = pm_init_pos[0];
+        pm_pos[1] = pm_init_pos[1];
+        pm_lives -= 1;
+    }
+}
+
 
 function pm_draw() {
     var dx = Math.round((W-(map[0].length*PM_TILE_SZ))/2);
     var dy = Math.round((H-(map.length*PM_TILE_SZ))/2)-30;
-    CTX.fillStyle = "#ffff33";
-    CTX.beginPath();
     var off = PM_TILE_SZ/2;
-    CTX.arc(pm_pos[0]*PM_TILE_SZ+dx+off,
-            pm_pos[1]*PM_TILE_SZ+dy+off,
+    var x = pm_pos[0]*PM_TILE_SZ+dx+off;
+    var y = pm_pos[1]*PM_TILE_SZ+dy+off;
+    var dir_rot = 0;
+    var up_down = 0;
+    switch (pm_dir) {
+    case "right":
+        dir_rot = 0;
+        break;
+    case "left":
+        dir_rot = Math.PI;
+        break;
+    case "up":
+        // XXX TODO????
+        break;
+    case "down":
+        up_down = Math.PI;
+        break;
+    }
+    var rot = Math.sin(pm_anim/2)/2+Math.PI/4 + dir_rot;
+    CTX.fillStyle = "#ffff33";
+    // bottom
+    CTX.translate(x, y);
+    CTX.rotate(up_down);
+    CTX.rotate(rot);
+    CTX.beginPath();
+    CTX.arc(0, 0,
             PM_TILE_SZ/2,
-            0, Math.PI*1.5 + Math.sin(pm_anim/20)*2, false);
+            0, Math.PI, false);
     CTX.fill();
+    CTX.rotate(-rot);
+    CTX.rotate(-up_down);
+    CTX.translate(-x, -y);
+    // top
+    CTX.translate(x, y);
+    CTX.scale(1, -1);
+    CTX.rotate(rot);
+    CTX.beginPath();
+    CTX.arc(0, 0,
+            PM_TILE_SZ/2,
+            0, Math.PI, false);
+    CTX.fill();
+    CTX.rotate(-rot);
+    CTX.scale(1, -1);
+    CTX.translate(-x, -y);
+}
+
+function pm_draw_hud() {
+    // clear
+    CTX.fillStyle = "#000";
+    CTX.fillRect(0, H-50, W, 50);
+    // draw
+    CTX.fillStyle = "#33dd33";
+    CTX.font = "20px monospace";
+    CTX.textAlign = "left";
+    CTX.fillText(pm_points + "", 30, H-30);;
+    CTX.fillText("lives: " + pm_lives, W-140, H-30);;
+    CTX.textAlign = "center";
+    CTX.fillText(pm_point_cnt + "/" + pm_init_point_cnt, W/2, H-30);;
 }
 
 var cnt = 0;
@@ -306,9 +425,18 @@ function pacman_frame(dt) {
     pm_draw_points((cnt++ > 2));
     pm_ctrl(dt);
     var tmp;
-    if (cnt > 10) {
+    if (cnt > 5) {
         cnt = 0;
+        pm_draw_hud();
         // player move
+        if (map[pm_pos[1]][pm_pos[0]] == "." || map[pm_pos[1]][pm_pos[0]] == "O") {
+            pm_point_cnt -= 1;
+            pm_points = Math.ceil((pm_points + 20) * 1.05);
+        }
+        if (pm_point_cnt < 1) {
+            return "next"; // won
+        }
+        map[pm_pos[1]][pm_pos[0]] = " ";
         tmp = pm_move(pm_dir, pm_next_dir, pm_pos, pm_collision);
         if (tmp[0]) {
             pm_dir = pm_next_dir;
@@ -317,6 +445,11 @@ function pacman_frame(dt) {
         // ghosts move
         if (pm_door_open)
             pm_ctrl_ghosts();
+        // game play
+        pm_player_ghost_collision();
+        if (pm_lives <= 0) {
+            return false; // lost
+        }
     }
     if (cnt2++ > 150) {
         pm_door_open = true;
@@ -337,7 +470,6 @@ function pacman_ctrl_hint() {
     return {"w or up-arrow   ": "up",
             "s or down-arrow ": "down",
             "a or left-arrow ": "left",
-            "d or right-arrow": "right",
-            "you've got to mash the keys a bit, here": "there are quite a few bugs...",
+            "d or right-arrow": "right"
     };
 }
