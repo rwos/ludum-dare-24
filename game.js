@@ -91,7 +91,6 @@ document.body.onkeyup = function(event) {
 
 C.onmousemove = function(event) {
     var x, y;
-    global_cur_mouse_area = false;
     if (event.offsetX) {
         x = event.offsetX;
         y = event.offsetY;
@@ -99,6 +98,8 @@ C.onmousemove = function(event) {
         x = event.layerX;
         y = event.layerY;
     }
+    document.getElementById("d").innerHTML = x + " - " + y;
+
     var a;
     for (var i = 0; i < global_mouse_areas.length; i++) {
         a = global_mouse_areas[i];
@@ -109,6 +110,7 @@ C.onmousemove = function(event) {
             return;
         }
     }
+    global_cur_mouse_area = false;
 }
 
 C.onclick = function() {
