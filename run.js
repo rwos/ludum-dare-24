@@ -25,7 +25,7 @@ var LEVELS = [
     "lucas",
     "wolf"
 ]
-var NEXT_LEVEL = 9;
+var NEXT_LEVEL = 12;
 var frame_fun;
 var frame_ret;
 var ctrl_hint_fun;
@@ -68,7 +68,7 @@ function lost_init() {
     CTX.fillText("You've lost!", W/2, 200);
     CTX.font = "20px monospace";
     CTX.fillText("press space to try again", W/2, 300);
-    lost_cnt = 100;
+    lost_cnt = 50;
 }
 
 function lost_frame() {

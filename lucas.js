@@ -12,6 +12,9 @@ var lucas_x;
 var lucas_y;
 var lucas_scale;
 
+var lucas_say_to;
+var lucas_say_s;
+
 var lucas_mouse_areas = [];
 
 var lucas_stage_areas = [];
@@ -21,33 +24,128 @@ var lucas_stage;
 var lucas_stage_stuff = [
     [
         {
-            name: "Darwin's Magic Banana",
-            talk: "Don't be silly.",
-            look: "Looks like a banana to me.",
-            use:  "I' can't even reach it.",
-            take: "I'm not tall enough.",
             hover: voidfn,
             click: function(){lucas_action("banana");},
             pos: [W-80, 30],
             sz: [50, 10]
         },
         {
-            name: "Slingshot",
-            talk: "It's not very talkative.",
-            look: "A slingshot.",
-            use:  "I'll have to take it, first.",
-            take: "I now have a slingshot. Yay!",
             hover: voidfn,
             click: function(){lucas_action("slingshot");},
             pos: [W/2, LUCAS_H-50],
             sz: [30, 30]
+        },
+        {
+            hover: voidfn,
+            click: function(){lucas_action("next stage");},
+            pos: [W-40, LUCAS_YS],
+            sz: [40, LUCAS_H]
         }
      ]
 ];
 
-function lucas_action(s) {
+function lucas_walk_to(x) {
+    lucas_x = x-100;
+}
 
-    alert(s);
+function lucas_say(s) {
+    lucas_say_to = 300;
+    lucas_say_s = s;
+}
+function lucas_action(s) {
+    // verbs
+    if (s == "go to" || s == "talk" || s == "look" || s == "use" || s == "take") {
+        lucas_cur_action = "";
+    }
+    if (lucas_cur_action == "go to ") {
+        if (s == "next stage") {
+            lucas_walk_to(W+20);
+        } else if (s == "banana") {
+            lucas_walk_to(W-20);
+        } else if (s == "slingshot") {
+            lucas_walk_to(W/2);
+        } else if (s == "player") {
+            lucas_say("I'm already here.");
+        } else {
+            lucas_cur_action = "";
+            return lucas_action(s);
+        }
+    } else if (lucas_cur_action == "talk ") {
+        if (s == "next stage") {
+            lucas_say("Maybe I'll find someone to talk to there.");
+        } else if (s == "banana") {
+            lucas_say("Don't be silly.");
+        } else if (s == "slingshot") {
+            lucas_say("It's not very talkative.");
+        } else if (s == "player") {
+            lucas_say("Thanks, but no thanks.");
+        } else {
+            lucas_cur_action = "";
+            return lucas_action(s);
+        }
+    } else if (lucas_cur_action == "look ") {
+        if (s == "next stage") {
+            lucas_say("The path leads to another low-resolution bitmap.");
+        } else if (s == "banana") {
+            lucas_say("Looks like a banana to me.");
+        } else if (s == "slingshot") {
+            lucas_say("It's a slingshot. Looks useful.");
+        } else if (s == "player") {
+            lucas_say("A mighty pirate, respected everywhere.");
+        } else {
+            lucas_cur_action = "";
+            return lucas_action(s);
+        }
+    } else if (lucas_cur_action.indexOf("use ") === 0) {
+        if (lucas_cur_action.indexOf("with") !== -1) {
+            // second thing
+            if (lucas_cur_action == "XXX TOODO") {
+
+            } else {
+                switch (rand(0,6)) {
+                case 0:
+                    lucas_say("I can't do that");
+                    break;
+                case 1:
+                    lucas_say("That could work. Not.");
+                    break;
+                case 2:
+                    lucas_say("Do you just brute-force your way through?");
+                    break;
+                case 3:
+                    lucas_say("I... don't think so");
+                    break;
+                case 4:
+                    lucas_say("Nope.");
+                    break;
+                default:
+                    lucas_say("That won't work.");
+                    break;
+                }
+            }
+        } else {
+            // first thing
+            return lucas_cur_action += s + " with ";
+        }
+    } else if (lucas_cur_action == "take ") {
+        if (s == "next stage") {
+            lucas_say("I can't take that.");
+        } else if (s == "banana") {
+            lucas_say("I can't reach it.");
+        } else if (s == "slingshot") {
+            lucas_action("go to slingshot")
+            lucas_take("slingshot");
+            lucas_say("I've got a slingshot! Yay!");
+        } else if (s == "player") {
+            lucas_say("I am already taken.");
+        } else {
+            lucas_cur_action = "";
+            return lucas_action(s);
+        }
+    } else {
+        lucas_cur_action = "";
+    }
+    lucas_cur_action += s + " ";
 }
 
 function lucas_init() {
@@ -56,6 +154,8 @@ function lucas_init() {
     lucas_scale = 1;
 
     lucas_stage = 0;
+    lucas_say_to = 0;
+    lucas_say_s = "";
 
     lucas_menu = [
         ["go to", 20,  380, 75, 35],
@@ -81,7 +181,7 @@ function lucas_init() {
         pos: [lucas_menu[0][1], lucas_menu[0][2]],
         sz:  [lucas_menu[0][3], lucas_menu[0][4]],
         hover: voidfn,
-        click: function() {lucas_action("goto");}
+        click: function() {lucas_action("go to");}
     });
     lucas_mouse_areas.push({
         pos: [lucas_menu[1][1], lucas_menu[1][2]],
@@ -124,7 +224,7 @@ function lucas_init() {
 }
 
 function lucas_set_stage_mouse_areas() {
-    lucas_stage_areas = lucas_stage_stuff[lucas_stage];
+    lucas_stage_areas = lucas_stage_stuff[lucas_stage].slice(0);
     // add player
     lucas_stage_areas.push({
         pos: [lucas_x, lucas_y],
@@ -196,7 +296,17 @@ function lucas_frame(dt) {
     // menu
     lucas_draw_menu()
     lucas_draw_inventory()
+    lucas_set_stage_mouse_areas();
     // XXX rm_mouse_areas() on win and lose
+    // text
+    if (lucas_say_to > 0) {
+        lucas_say_to -= 1;
+        CTX.fillStyle = "#00ffff";
+        CTX.font = "20px sans-serif";
+        CTX.textAlign = "center";
+        CTX.fillText(lucas_say_s, W/2, 40);
+    }
+
     return true;
 }
 
