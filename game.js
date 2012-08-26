@@ -23,6 +23,13 @@ function clear(col) {
     CTX.fillRect(XS, YS, W, H);
 }
 
+function preventDefault(e) {
+  e = e || window.event;
+  if (e.preventDefault)
+      e.preventDefault();
+  e.returnValue = false;  
+}
+
 var KEY = {
     up: false,
     down: false,
@@ -78,6 +85,7 @@ function key_change(code, down) {
 }
 
 document.body.onkeydown = function(event) {
+    preventDefault(event);
     event = event || window.event;
     var code = event.keyCode;
     key_change(code, true);
