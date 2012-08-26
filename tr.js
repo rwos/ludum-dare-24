@@ -163,3 +163,43 @@ function pong2ba_frame(dt) {
 function pong2ba_ctrl_hint() {return {};}
 
 
+//////////////////////////////////////////////////////////////////
+
+var ba2as_lw;
+var ba2as_sz;
+function ba2as_init() {
+    ba2as_lw = 5;
+    ba2as_sz = BREAKOUT_BSZ;
+}
+function ba2as_frame(dt) {
+    if (ba2as_sz < 40) {
+        clear("#000");
+        ba2as_lw -= 1;
+        if (ba2as_lw < 1)
+            ba2as_lw = 1;
+        ba2as_sz += 0.2;
+        CTX.lineWidth = ba2as_lw;
+        CTX.strokeStyle = "#ddd";
+        CTX.beginPath();
+        CTX.arc(breakout_bx, breakout_by, ba2as_sz, 0, 2 * Math.PI, false);
+        CTX.stroke();
+    } else {
+        if (KEY.space) {
+            return "next";
+        } else {
+            CTX.fillStyle = "#aaa";
+            CTX.fillRect(100, 100, W-200, H-200);
+            CTX.lineWidth = 5;
+            CTX.stokeStyle = "#333";
+            CTX.strokeRect(100, 100, W-200, H-200);
+            CTX.font = "40px monospace";
+            CTX.fillStyle = "#111";
+            CTX.textAlign = "center";
+            CTX.fillText("You've won!", W/2, 200);
+            CTX.font = "20px monospace";
+            CTX.fillText("press space to continue", W/2, 300);
+        }
+    }
+    return true;
+}
+function ba2as_ctrl_hint() {return {};}

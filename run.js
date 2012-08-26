@@ -16,13 +16,14 @@ var LEVELS = [
     "pong",
     "pong2ba",
     "breakout",
+    "ba2as",
     "asteroids",
     "pacman",
     "bros",
     "lucas",
     "wolf"
 ]
-var NEXT_LEVEL = 3;
+var NEXT_LEVEL = 5;
 var frame_fun;
 var frame_ret;
 var ctrl_hint_fun;

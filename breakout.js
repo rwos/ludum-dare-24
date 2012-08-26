@@ -116,7 +116,6 @@ function breakout_handle_brick_hit() {
                 breakout_bdy = -breakout_speed;
             }
             breakout_points = Math.ceil((breakout_points+100)*1.25);
-            // XXX TODO: lineWidth--;
             return;
         }
     }
