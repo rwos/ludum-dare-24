@@ -11,7 +11,12 @@ var tic_field;
 
 var tic_mouse_areas;
 
+var tic_won;
+var tic_lost;
+
 function tic_init() {
+    tic_won = false;
+    tic_lost = false;
     tic_txt = [];
     tic_printing = false;
     tic_field = [" ", " ", " ",
@@ -160,14 +165,46 @@ function tic_cmp_turn() {
     }
 }
 
+function tic_chk_game_cond() {
+    var f = tic_field;
+    var c;
+    for (var i=0; i<2; i++) {
+        if (i == 0)
+            c = "X";
+        else
+            c = "O";
+        if ((f[0] == c && f[1] == c && f[2] == c)
+        ||  (f[3] == c && f[4] == c && f[5] == c)
+        ||  (f[6] == c && f[7] == c && f[8] == c)
+
+        ||  (f[0] == c && f[3] == c && f[6] == c)
+        ||  (f[1] == c && f[4] == c && f[7] == c)
+        ||  (f[2] == c && f[5] == c && f[8] == c)
+
+        ||  (f[0] == c && f[4] == c && f[8] == c)
+        ||  (f[6] == c && f[4] == c && f[2] == c)) {
+            if (c == "X") {
+                tic_lost = true;
+                return;
+            } else {
+                tic_won = true;
+                return;
+            }
+        }
+    }
+}
+
 function tic_user_turn(i) {
     if (tic_field[i] != " " || tic_printing > 0) {
-        tic_line("!! INPUT ERROR !!");
-        tic_line("!! INPUT ERROR !!");
-        tic_line("!! INPUT ERROR !!");
-        tic_line("!! INPUT ERROR !!");
+        tic_line("");
+        tic_line("INPUT ERROR ID107");
+        tic_line("LAYER 8 PROBLEM DETECTED");
+        tic_line("");
+        tic_line("STOP.");
+        tic_lost = true;
         return false; // fail -> lost
     }
+    tic_chk_game_cond();
     tic_field[i] = "O";
     tic_line("");
     tic_line("YOUR TURN");
@@ -175,8 +212,14 @@ function tic_user_turn(i) {
     tic_line("");
     tic_line("--------------");
     tic_line("");
-    tic_cmp_turn();
+    if (! tic_cmp_turn()) {
+        tic_lost = true;
+        return;
+    };
+    tic_chk_game_cond();
     tic_draw_field();
+    tic_line("");
+    tic_line("COMPUTER WAITING FOR YOU");
 }
 
 function tic_draw_field() {
@@ -211,8 +254,13 @@ function tic_frame(dt) {
     }
     tic_print();
 
-    // XXX TODO: ON WINNGING + LOSING: rm_mouse_areas()
-
+    if (tic_lost) {
+        rm_mouse_areas();
+        return false;
+    } else if (tic_won) {
+        rm_mouse_areas();
+        return "next";
+    }
     return true;
 }
 
