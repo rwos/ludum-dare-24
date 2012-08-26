@@ -203,3 +203,35 @@ function ba2as_frame(dt) {
     return true;
 }
 function ba2as_ctrl_hint() {return {};}
+
+//////////////////////////////////////////////////////////////////
+
+var as2pac_fade;
+function as2pac_init() {
+    as2pac_fade = 200;
+}
+function as2pac_frame(dt) {
+    if (as2pac_fade > 0) {
+        CTX.fillStyle = "rgba(0, 0, 100, 0.01)";
+        CTX.fillRect(0, 0, W, H);
+        as2pac_fade -= 1;
+    } else {
+        if (KEY.space) {
+            return "next";
+        } else {
+            CTX.fillStyle = "#aaa";
+            CTX.fillRect(100, 100, W-200, H-200);
+            CTX.lineWidth = 5;
+            CTX.stokeStyle = "#333";
+            CTX.strokeRect(100, 100, W-200, H-200);
+            CTX.font = "40px monospace";
+            CTX.fillStyle = "#111";
+            CTX.textAlign = "center";
+            CTX.fillText("You've won!", W/2, 200);
+            CTX.font = "20px monospace";
+            CTX.fillText("press space to continue", W/2, 300);
+        }
+    }
+    return true;
+}
+function as2pac_ctrl_hint() {return {};}
