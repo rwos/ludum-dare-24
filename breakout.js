@@ -57,7 +57,10 @@ function breakout_init() {
             });
         }
     }
-    BREAKOUT_BSZ = 3;
+    BREAKOUT_BSZ = PONG_BSZ;
+    if (! (BREAKOUT_BSZ > 5)) {
+        BREAKOUT_BSZ = 5;
+    }
 }
 
 function breakout_advance_ball(dt) {
@@ -125,16 +128,10 @@ function breakout_draw_paddle(x, y) {
 }
 
 function breakout_draw_ball() {
-    CTX.strokeStyle = "#ddd";
-    var lw = 10 - BREAKOUT_BSZ;
-    if (lw < 2) {
-        lw = 2;
-    }
-    CTX.lineWidth = lw;
-
+    CTX.fillStyle = "#ddd";
     CTX.beginPath();
     CTX.arc(breakout_bx, breakout_by, BREAKOUT_BSZ, 0, 2 * Math.PI, false);
-    CTX.stroke();
+    CTX.fill();
 }
 
 function breakout_draw_hud() {

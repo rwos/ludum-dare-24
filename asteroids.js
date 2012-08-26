@@ -175,6 +175,7 @@ function as_player_hit() {
 
 function asteroids_frame(dt) {
     var win_cond = false;
+    clear("#000");
     as_ctrl(dt);
     win_cond = as_ctrl_teroids(dt);
     as_ctrl_bullets(dt);
@@ -250,7 +251,6 @@ function as_ctrl(dt) {
     as_engine = KEY.up;
     var thrust = 0.005;
     var ang = deg2rad(as_dir) + Math.PI;
-    document.getElementById("d").innerHTML = ang + " - " + as_dir;
     if (as_engine) {
         as_velx -= Math.sin(ang)*thrust*dt;
         as_vely += Math.cos(ang)*thrust*dt;

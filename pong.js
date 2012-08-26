@@ -36,7 +36,7 @@ function pong_advance_ball(dt) {
     if (pong_bx > W-PONG_PADDLE_X-PONG_BSZ) {
         if (pong_by < pong_ey || pong_by > pong_ey+PONG_PADDLE_H) {
             pong_ppoints += 1;
-            PONG_BSZ += 1;
+            PONG_BSZ += 0.3;
         }
         pong_bdx *= -1;
         pong_bx = W-PONG_PADDLE_X-PONG_BSZ;
