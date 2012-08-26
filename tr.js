@@ -344,3 +344,34 @@ function luc2wolf_frame(dt) {
     return true;
 }
 function luc2wolf_ctrl_hint() {return {};}
+//////////////////////////////////////////////////////////////////
+
+var gameend_fade;
+function gameend_init() {
+    gameend_fade = 200;
+}
+function gameend_frame(dt) {
+    if (gameend_fade > 0) {
+        CTX.fillStyle = "rgba(0, 0, 100, 0.01)";
+        CTX.fillRect(0, 0, W, H);
+        gameend_fade -= 1;
+    } else {
+        CTX.fillStyle = "#aaa";
+        CTX.fillRect(100, 100, W-200, H-200);
+        CTX.lineWidth = 5;
+        CTX.stokeStyle = "#333";
+        CTX.strokeRect(100, 100, W-200, H-200);
+        CTX.font = "40px monospace";
+        CTX.fillStyle = "#111";
+        CTX.textAlign = "center";
+        CTX.fillText("THE END", W/2, 200);
+        CTX.font = "20px monospace";
+        CTX.fillText("How did you find the green blocks?", W/2, 250);
+        CTX.font = "15px monospace";
+        CTX.fillText("I've made the map and I didn't find them...", W/2, 300);
+        CTX.font = "20px monospace";
+        CTX.fillText("Thanks for playing!", W/2, 350);
+    }
+    return true;
+}
+function gameend_ctrl_hint() {return {};}

@@ -25,7 +25,8 @@ var LEVELS = [
     "bros2luc",
     "lucas",
     "luc2wolf",
-    "wolf"
+    "wolf",
+    "gameend"
 ]
 var NEXT_LEVEL = 0;
 var frame_fun;
