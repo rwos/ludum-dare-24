@@ -19,6 +19,8 @@ var bros_yvel;
 
 var bros_world_off;
 
+var bros_end_x;
+
 var BROS_T_SZ = 40;
 
 var BROS_PL_H = 2*BROS_T_SZ;
@@ -38,10 +40,19 @@ function bros_init() {
     bros_rest = false;
     bros_yvel = 0;
     bros_world_off = 0;
+    bros_end_x = bros_get_end_x();
+}
+
+function bros_get_end_x() {
+    for (var y=0; y<BROS_MAP.length; y++) {
+        for (var x=0; x<BROS_MAP[y].length; x++) {
+            if (BROS_MAP[y][x] == "|")
+                return x;
+        }
+    }
 }
 
 function bros_ctrl_pl(dt) {
-    var oldpos = [bros_pos[0], bros_pos[1]];;
     // world offset (camera)
     if (bros_pos[0]*BROS_PL_W > W/2) {
         bros_world_off -= 1;
@@ -124,6 +135,10 @@ function bros_frame(dt) {
     bros_draw_pl();
     if (bros_pos[1] > 30) {
         return false;
+    }
+    console.log(bros_end_x);
+    if (bros_pos[0] >= bros_end_x) {
+        return "next";
     }
 
     document.getElementById("d").innerHTML = bros_pos[0] + " - " + bros_pos[1] + " ("
