@@ -11,10 +11,13 @@ var tic_field;
 
 var tic_mouse_areas;
 
+var tic_first;
+
 var tic_won;
 var tic_lost;
 
 function tic_init() {
+    tic_first = true;
     tic_won = false;
     tic_lost = false;
     tic_txt = [];
@@ -114,8 +117,8 @@ function tic_print(s) {
     CTX.font = "20px monospace";
     CTX.fillStyle = "#333355";
     CTX.textAlign = "left";
-    if (rand(0, 3) == 1) {
-        tic_printing -= 5;
+    if (rand(0, 2) == 1) {
+        tic_printing -= 6;
     }
     if (tic_printing < 0)
         tic_printing = 0;
@@ -161,6 +164,7 @@ function tic_cmp_turn() {
         tic_field[free_field] = "X";
         return true;
     } else {
+        tic_line("GAME OVER");
         return false; // game is over
     }
 }
@@ -184,9 +188,11 @@ function tic_chk_game_cond() {
         ||  (f[0] == c && f[4] == c && f[8] == c)
         ||  (f[6] == c && f[4] == c && f[2] == c)) {
             if (c == "X") {
+                tic_line("YOU LOST");
                 tic_lost = true;
                 return;
             } else {
+                tic_line("YOU WON");
                 tic_won = true;
                 return;
             }
@@ -204,8 +210,8 @@ function tic_user_turn(i) {
         tic_lost = true;
         return false; // fail -> lost
     }
-    tic_chk_game_cond();
     tic_field[i] = "O";
+    tic_chk_game_cond();
     tic_line("");
     tic_line("YOUR TURN");
     tic_draw_field();
@@ -216,9 +222,9 @@ function tic_user_turn(i) {
         tic_lost = true;
         return;
     };
-    tic_chk_game_cond();
     tic_draw_field();
     tic_line("");
+    tic_chk_game_cond();
     tic_line("COMPUTER WAITING FOR YOU");
 }
 
@@ -234,11 +240,13 @@ function tic_draw_field() {
 }
 
 function tic_line(s) {
+    if (tic_lost || tic_won) {
+        return;
+    }
     tic_txt.unshift(s);
     tic_printing += 20;
 }
 
-var tic_first = true;
 function tic_frame(dt) {
     clear("#bbaaaa");
     tic_draw_bg();
@@ -254,12 +262,14 @@ function tic_frame(dt) {
     }
     tic_print();
 
-    if (tic_lost) {
-        rm_mouse_areas();
-        return false;
-    } else if (tic_won) {
-        rm_mouse_areas();
-        return "next";
+    if (tic_printing == 0) {
+        if (tic_lost) {
+            rm_mouse_areas();
+            return false;
+        } else if (tic_won) {
+            rm_mouse_areas();
+            return "next";
+        }
     }
     return true;
 }

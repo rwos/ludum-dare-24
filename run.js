@@ -48,6 +48,7 @@ function main() {
     }
     frame_ret = frame_fun(TIME_DELTA + TIMEOUT);
     if (frame_ret === "next") {
+        alert("YOU WON!");
         chg_level();
     } else if (! frame_ret) {
         alert("LOST");
