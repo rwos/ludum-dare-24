@@ -109,3 +109,57 @@ function tic2pong_frame(dt) {
 }
 function tic2pong_ctrl_hint() {return {};}
 
+//////////////////////////////////////////////////////////////////
+
+var pong2ba_ang;
+var pong2ba_scaled;
+var PONG2BA_SC = 0.88;
+function pong2ba_init() {
+    pong2ba_ang = 0;
+    CTX.scale(PONG2BA_SC, PONG2BA_SC);
+    pong2ba_scaled = false;
+    clear("#000");
+}
+function pong2ba_frame(dt) {
+    if (pong2ba_ang < 90) {
+        CTX.scale(1/PONG2BA_SC, 1/PONG2BA_SC);
+        clear("#000");
+        CTX.scale(PONG2BA_SC, PONG2BA_SC);
+        pong2ba_ang += dt/50;
+        var ang = deg2rad(pong2ba_ang);
+        CTX.translate(W/2, H/2);
+        CTX.rotate(-ang);
+        CTX.translate(-W/2, -H/2);
+        pong_draw_points();
+        pong_draw_ball();
+        pong_draw_paddle(PONG_PADDLE_X, pong_py);
+        pong_draw_paddle(W-PONG_PADDLE_X, pong_ey);
+        CTX.translate(W/2, H/2);
+        CTX.rotate(ang);
+        CTX.translate(-W/2, -H/2);
+    } else {
+        if (! pong2ba_scaled) {
+            CTX.scale(1/PONG2BA_SC, 1/PONG2BA_SC);
+            pong2ba_scaled = true;
+        }
+        if (KEY.space) {
+            return "next";
+        } else {
+            CTX.fillStyle = "#aaa";
+            CTX.fillRect(100, 100, W-200, H-200);
+            CTX.lineWidth = 5;
+            CTX.stokeStyle = "#333";
+            CTX.strokeRect(100, 100, W-200, H-200);
+            CTX.font = "40px monospace";
+            CTX.fillStyle = "#111";
+            CTX.textAlign = "center";
+            CTX.fillText("You've won!", W/2, 200);
+            CTX.font = "20px monospace";
+            CTX.fillText("press space to continue", W/2, 300);
+        }
+    }
+    return true;
+}
+function pong2ba_ctrl_hint() {return {};}
+
+

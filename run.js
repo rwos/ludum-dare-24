@@ -14,6 +14,7 @@ var LEVELS = [
     "tic",
     "tic2pong",
     "pong",
+    "pong2ba",
     "breakout",
     "asteroids",
     "pacman",
@@ -21,7 +22,7 @@ var LEVELS = [
     "lucas",
     "wolf"
 ]
-var NEXT_LEVEL = 0;
+var NEXT_LEVEL = 3;
 var frame_fun;
 var frame_ret;
 var ctrl_hint_fun;

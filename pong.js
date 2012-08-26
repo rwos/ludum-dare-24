@@ -78,22 +78,22 @@ function pong_draw_points() {
 }
 
 function pong_player_ctrl(dt) {
-    var spd = 0.2;
-    if (KEY.up) {
+    var spd = 0.3;
+    if (KEY.up && pong_py > 0) {
         pong_py -= spd*dt;
     }
-    if (KEY.down) {
+    if (KEY.down && pong_py < H-PONG_PADDLE_H) {
         pong_py += spd*dt;
     }
 }
 
 function pong_enemy_ctrl(dt) {
-    var spd = 0.1;
+    var spd = 0.3;
     var dir = 1;
     if (pong_ey > pong_by) {
         dir = -1;
     }
-    if (rand(0, 1) == 0) {
+    if (rand(0, 5) < 4) {
         pong_ey += spd*dt*dir;
     }
 }
