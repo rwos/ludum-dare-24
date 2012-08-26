@@ -9,8 +9,19 @@ var TARGET_FRAME_TIME = 1000 / 60;
 
 var TIMEOUT;
 
-var LEVELS = ["tic", "pong", "breakout", "asteroids", "pacman", "bros", "lucas", "wolf"]
-var NEXT_LEVEL = 7;
+var LEVELS = [
+    "title",
+    "tic",
+    "tic2pong",
+    "pong",
+    "breakout",
+    "asteroids",
+    "pacman",
+    "bros",
+    "lucas",
+    "wolf"
+]
+var NEXT_LEVEL = 0;
 var frame_fun;
 var frame_ret;
 var ctrl_hint_fun;
@@ -38,6 +49,33 @@ function chg_level() {
     NEXT_LEVEL += 1;
 }
 
+var lost_cnt;
+function lost_init() {
+    CTX.fillStyle = "rgba(0, 0, 0, 0.7)";
+    CTX.fillRect(0, 0, W, H);
+    CTX.fillStyle = "#aaa";
+    CTX.fillRect(100, 100, W-200, H-200);
+    CTX.lineWidth = 5;
+    CTX.stokeStyle = "#333";
+    CTX.strokeRect(100, 100, W-200, H-200);
+    CTX.font = "40px monospace";
+    CTX.fillStyle = "#111";
+    CTX.textAlign = "center";
+    CTX.fillText("You've lost!", W/2, 200);
+    CTX.font = "20px monospace";
+    CTX.fillText("press space to try again", W/2, 300);
+    lost_cnt = 100;
+}
+
+function lost_frame() {
+    if (lost_cnt > 0)
+        lost_cnt -= 1;
+    if (KEY.space && lost_cnt <= 0) {
+        return "next";
+    }
+    return true;
+}
+
 function main() {
     START_TIME = new Date().getTime();
     clearTimeout(RUNNING);
@@ -49,12 +87,11 @@ function main() {
     }
     frame_ret = frame_fun(TIME_DELTA + TIMEOUT);
     if (frame_ret === "next") {
-        alert("YOU WON!");
         chg_level();
     } else if (! frame_ret) {
-        alert("LOST");
         NEXT_LEVEL -= 1;
-        chg_level();
+        lost_init();
+        frame_fun = lost_frame;
     }
     RUNNING = setTimeout(main, TIMEOUT);
 }

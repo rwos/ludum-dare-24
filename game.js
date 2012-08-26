@@ -116,7 +116,6 @@ C.onmousemove = function(event) {
         x = event.layerX;
         y = event.layerY;
     }
-    document.getElementById("d").innerHTML = x + " - " + y;
 
     var a;
     for (var i = 0; i < global_mouse_areas.length; i++) {
