@@ -23,56 +23,56 @@ function tic_init() {
         {
             pos: [x, y],
             sz:  [40, 40],
-            hover: function() {alert("HOVER");},
-            click: function() {alert("CLICK");}
+            hover: voidfn,
+            click: function() {tic_user_turn(0);}
         },
         {
             pos: [x+50, y],
             sz:  [40, 40],
-            hover: function() {alert("HOVER");},
-            click: function() {alert("CLICK");}
+            hover: voidfn,
+            click: function() {tic_user_turn(1);}
         },
         {
             pos: [x+100, y],
             sz:  [40, 40],
-            hover: function() {alert("HOVER");},
-            click: function() {alert("CLICK");}
+            hover: voidfn,
+            click: function() {tic_user_turn(2);}
         },
         {
             pos: [x, y+50],
             sz:  [40, 40],
-            hover: function() {alert("HOVER");},
-            click: function() {alert("CLICK");}
+            hover: voidfn,
+            click: function() {tic_user_turn(3);}
         },
         {
             pos: [x+50, y+50],
             sz:  [40, 40],
-            hover: function() {alert("HOVER");},
-            click: function() {alert("CLICK");}
+            hover: voidfn,
+            click: function() {tic_user_turn(4);}
         },
         {
             pos: [x+100, y+50],
             sz:  [40, 40],
-            hover: function() {alert("HOVER");},
-            click: function() {alert("CLICK");}
+            hover: voidfn,
+            click: function() {tic_user_turn(5);}
         },
         {
             pos: [x, y+100],
             sz:  [40, 40],
-            hover: function() {alert("HOVER");},
-            click: function() {alert("CLICK");}
+            hover: voidfn,
+            click: function() {tic_user_turn(6);}
         },
         {
             pos: [x+50, y+100],
             sz:  [40, 40],
-            hover: function() {alert("HOVER");},
-            click: function() {alert("CLICK");}
+            hover: voidfn,
+            click: function() {tic_user_turn(7);}
         },
         {
             pos: [x+100, y+100],
             sz:  [40, 40],
-            hover: function() {alert("HOVER");},
-            click: function() {alert("CLICK");}
+            hover: voidfn,
+            click: function() {tic_user_turn(8);}
         }
     ];
     set_mouse_areas(tic_mouse_areas);
@@ -110,7 +110,7 @@ function tic_print(s) {
     CTX.fillStyle = "#333355";
     CTX.textAlign = "left";
     if (rand(0, 3) == 1) {
-        tic_printing -= 2;
+        tic_printing -= 5;
     }
     if (tic_printing < 0)
         tic_printing = 0;
@@ -156,17 +156,36 @@ function tic_cmp_turn() {
         tic_field[free_field] = "X";
         return true;
     } else {
-        return false;
+        return false; // game is over
     }
+}
+
+function tic_user_turn(i) {
+    if (tic_field[i] != " " || tic_printing > 0) {
+        tic_line("!! INPUT ERROR !!");
+        tic_line("!! INPUT ERROR !!");
+        tic_line("!! INPUT ERROR !!");
+        tic_line("!! INPUT ERROR !!");
+        return false; // fail -> lost
+    }
+    tic_field[i] = "O";
+    tic_line("");
+    tic_line("YOUR TURN");
+    tic_draw_field();
+    tic_line("");
+    tic_line("--------------");
+    tic_line("");
+    tic_cmp_turn();
+    tic_draw_field();
 }
 
 function tic_draw_field() {
     tic_line("+---+---+---+");
-    tic_line("| "+tic_field[0]+" | "+tic_field[1]+" | "+tic_field[2]+" |");
+    tic_line("| "+tic_field[6]+" | "+tic_field[7]+" | "+tic_field[8]+" |");
     tic_line("+---+---+---+");
     tic_line("| "+tic_field[3]+" | "+tic_field[4]+" | "+tic_field[5]+" |");
     tic_line("+---+---+---+");
-    tic_line("| "+tic_field[6]+" | "+tic_field[7]+" | "+tic_field[8]+" |");
+    tic_line("| "+tic_field[0]+" | "+tic_field[1]+" | "+tic_field[2]+" |");
     tic_line("+---+---+---+");
 
 }
