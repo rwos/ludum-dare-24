@@ -48,13 +48,12 @@ function main() {
     }
     frame_ret = frame_fun(TIME_DELTA + TIMEOUT);
     if (frame_ret === "next") {
-        alert("NEXT LEVEL");
+        chg_level();
     } else if (! frame_ret) {
         alert("LOST");
         NEXT_LEVEL -= 1;
         chg_level();
     }
-    document.getElementById("frame-time").innerHTML = TIMEOUT + " - " + TIME_DELTA;
     RUNNING = setTimeout(main, TIMEOUT);
 }
 
