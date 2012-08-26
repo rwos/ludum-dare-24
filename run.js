@@ -20,11 +20,12 @@ var LEVELS = [
     "asteroids",
     "as2pac",
     "pacman",
+    "pac2bros",
     "bros",
     "lucas",
     "wolf"
 ]
-var NEXT_LEVEL = 7;
+var NEXT_LEVEL = 9;
 var frame_fun;
 var frame_ret;
 var ctrl_hint_fun;

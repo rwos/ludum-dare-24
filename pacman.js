@@ -40,6 +40,7 @@ var map = [
 ];
 
 var PM_TILE_SZ = Math.round((W-40)/map[0].length);
+var PM_MAP_STYLE = "#3333ff";
 
 var pm_pos;
 var pm_init_pos;
@@ -189,7 +190,7 @@ function pm_draw_map() {
     for (var y=0; y<map.length; y++) {
         for (var x=0; x<map[y].length; x++) {
             if (map[y][x] == "X") {
-                CTX.fillStyle = "#3333ff";
+                CTX.fillStyle = PM_MAP_STYLE;
                 CTX.fillRect(x*PM_TILE_SZ+dx, y*PM_TILE_SZ+dy, PM_TILE_SZ, PM_TILE_SZ);
             }
         }

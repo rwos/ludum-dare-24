@@ -235,3 +235,50 @@ function as2pac_frame(dt) {
     return true;
 }
 function as2pac_ctrl_hint() {return {};}
+
+//////////////////////////////////////////////////////////////////
+
+var pac2bros_scale;
+function pac2bros_init() {
+    pac2bros_scale = 1;
+}
+function pac2bros_frame(dt) {
+    var dx = Math.round((W-(map[0].length*PM_TILE_SZ))/2);
+    var dy = Math.round((H-(map.length*PM_TILE_SZ))/2)-30;
+    if (pac2bros_scale < 20) {
+        if (pac2bros_scale > 2) {
+            PM_MAP_STYLE = "#5555ff";
+        }
+        if (pac2bros_scale > 4) {
+            PM_MAP_STYLE = "#7777ff";
+        }
+        if (pac2bros_scale > 8) {
+            PM_MAP_STYLE = "#aaaaff";
+        }
+        clear("#000");
+        CTX.scale(pac2bros_scale, pac2bros_scale);
+        CTX.translate(-dx*2, -dy);
+        pm_draw_map();
+        CTX.translate(+dx*2, +dy);
+        CTX.scale(1/pac2bros_scale, 1/pac2bros_scale);
+        pac2bros_scale += dt/100;
+    } else {
+        if (KEY.space) {
+            return "next";
+        } else {
+            CTX.fillStyle = "#aaa";
+            CTX.fillRect(100, 100, W-200, H-200);
+            CTX.lineWidth = 5;
+            CTX.stokeStyle = "#333";
+            CTX.strokeRect(100, 100, W-200, H-200);
+            CTX.font = "40px monospace";
+            CTX.fillStyle = "#111";
+            CTX.textAlign = "center";
+            CTX.fillText("You've won!", W/2, 200);
+            CTX.font = "20px monospace";
+            CTX.fillText("press space to continue", W/2, 300);
+        }
+    }
+    return true;
+}
+function pac2bros_ctrl_hint() {return {};}
