@@ -5,6 +5,8 @@ var H = C.height;
 var XS = 0;
 var YS = 0;
 
+var global_mouse_areas = [];
+
 function rand(start, end) {
     return Math.floor(Math.random()*(end - start + 1)) + start;
 }
@@ -26,6 +28,14 @@ var KEY = {
     sleft: false,
     sright: false,
     space: false
+}
+
+function set_mouse_areas(list) {
+    global_mouse_areas = list;
+}
+
+function rm_mouse_areas() {
+    global_mouse_areas = [];
 }
 
 function key_change(code, down) {
