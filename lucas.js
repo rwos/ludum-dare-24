@@ -15,31 +15,49 @@ var lucas_scale;
 var lucas_say_to;
 var lucas_say_s;
 
+var lucas_slingshot_taken = false;
+
 var lucas_mouse_areas = [];
 
 var lucas_stage_areas = [];
 
 var lucas_stage;
 
+var lucas_won = false;
+
+var LUCAS_I_STAGE_1   = new Image();
+LUCAS_I_STAGE_1.src = "lucas_stage_1.png";
+var LUCAS_I_GUY       = new Image();
+LUCAS_I_GUY.src = "lucas_guy.png";
+var LUCAS_I_MONKEY    = new Image();
+LUCAS_I_MONKEY.src = "lucas_monkey.png";
+var LUCAS_I_BANANA    = new Image();
+LUCAS_I_BANANA.src = "lucas_banana.png";
+var LUCAS_I_SLINGSHOT = new Image();
+LUCAS_I_SLINGSHOT.src = "lucas_slingshot.png";
+
 var lucas_stage_stuff = [
     [
         {
+            img: LUCAS_I_BANANA,
             hover: voidfn,
             click: function(){lucas_action("banana");},
             pos: [W-80, 30],
-            sz: [50, 10]
+            sz: [40, 20]
         },
         {
+            img: LUCAS_I_SLINGSHOT,
             hover: voidfn,
             click: function(){lucas_action("slingshot");},
             pos: [W/2, LUCAS_H-50],
             sz: [30, 30]
         },
         {
+            img: LUCAS_I_MONKEY,
             hover: voidfn,
-            click: function(){lucas_action("next stage");},
-            pos: [W-40, LUCAS_YS],
-            sz: [40, LUCAS_H]
+            click: function(){lucas_action("three-headed monkey");},
+            pos: [W-80, LUCAS_YS+LUCAS_H-120],
+            sz: [80, 120]
         }
      ]
 ];
@@ -52,18 +70,39 @@ function lucas_say(s) {
     lucas_say_to = 300;
     lucas_say_s = s;
 }
+
+function lucas_take(s) {
+    var x = W/2 + LUCAS_XS*6;
+    var dy = H-LUCAS_HS+LUCAS_YS*6-20;
+    lucas_mouse_areas.push({
+        pos: [W/2 + LUCAS_XS*6,
+              H-LUCAS_HS+LUCAS_YS*6],
+        sz:  [200, 40],
+        hover: voidfn,
+        click: function() {lucas_action("slingshot");}
+    });
+    lucas_set_stage_mouse_areas();
+    lucas_stage_stuff[0][1] = lucas_stage_stuff[0].pop();
+}
+
+function lucas_done() {
+    lucas_won = true;
+}
+
 function lucas_action(s) {
     // verbs
     if (s == "go to" || s == "talk" || s == "look" || s == "use" || s == "take") {
         lucas_cur_action = "";
     }
     if (lucas_cur_action == "go to ") {
-        if (s == "next stage") {
-            lucas_walk_to(W+20);
+        if (s == "three-headed monkey") {
+            lucas_walk_to(W-40);
         } else if (s == "banana") {
-            lucas_walk_to(W-20);
+            lucas_walk_to(W-100);
         } else if (s == "slingshot") {
             lucas_walk_to(W/2);
+        } else if (s == "rubber chicken") {
+            lucas_say("How do you think that would work?");
         } else if (s == "player") {
             lucas_say("I'm already here.");
         } else {
@@ -71,12 +110,14 @@ function lucas_action(s) {
             return lucas_action(s);
         }
     } else if (lucas_cur_action == "talk ") {
-        if (s == "next stage") {
-            lucas_say("Maybe I'll find someone to talk to there.");
+        if (s == "three-headed monkey") {
+            lucas_say("I don't want to talk to him now. He looks too hungry.");
         } else if (s == "banana") {
             lucas_say("Don't be silly.");
         } else if (s == "slingshot") {
             lucas_say("It's not very talkative.");
+        } else if (s == "rubber chicken") {
+            lucas_say("No.");
         } else if (s == "player") {
             lucas_say("Thanks, but no thanks.");
         } else {
@@ -84,12 +125,14 @@ function lucas_action(s) {
             return lucas_action(s);
         }
     } else if (lucas_cur_action == "look ") {
-        if (s == "next stage") {
-            lucas_say("The path leads to another low-resolution bitmap.");
+        if (s == "three-headed monkey") {
+            lucas_say("It's a three-headed monkey. Right in front of me.");
         } else if (s == "banana") {
             lucas_say("Looks like a banana to me.");
         } else if (s == "slingshot") {
             lucas_say("It's a slingshot. Looks useful.");
+        } else if (s == "rubber chicken") {
+            lucas_say("It's a rubber chicken without any attached pulleys.");
         } else if (s == "player") {
             lucas_say("A mighty pirate, respected everywhere.");
         } else {
@@ -99,8 +142,11 @@ function lucas_action(s) {
     } else if (lucas_cur_action.indexOf("use ") === 0) {
         if (lucas_cur_action.indexOf("with") !== -1) {
             // second thing
-            if (lucas_cur_action == "XXX TOODO") {
-
+            if (lucas_slingshot_taken &&
+                (s == "slingshot" || s == "banana") &&
+                (  lucas_cur_action.indexOf("use banana with") !== -1
+                || lucas_cur_action.indexOf("use slingshot with") !== -1)) {
+                lucas_done();
             } else {
                 switch (rand(0,6)) {
                 case 0:
@@ -128,14 +174,22 @@ function lucas_action(s) {
             return lucas_cur_action += s + " with ";
         }
     } else if (lucas_cur_action == "take ") {
-        if (s == "next stage") {
-            lucas_say("I can't take that.");
+        if (s == "three-headed monkey") {
+            lucas_say("I can't just take him.");
         } else if (s == "banana") {
             lucas_say("I can't reach it.");
+        } else if (s == "rubber chicken") {
+            lucas_say("I already have that.");
         } else if (s == "slingshot") {
-            lucas_action("go to slingshot")
-            lucas_take("slingshot");
-            lucas_say("I've got a slingshot! Yay!");
+            if (! lucas_slingshot_taken) {
+                lucas_take("slingshot");
+                lucas_slingshot_taken = true;
+                lucas_say("I've got a slingshot! Yay!");
+                lucas_cur_action = "";
+                return;
+            } else {
+                lucas_say("I already got that");
+            }
         } else if (s == "player") {
             lucas_say("I am already taken.");
         } else {
@@ -167,13 +221,7 @@ function lucas_init() {
     lucas_cur_action = "";
     var empt = {name:"",talk:"",look:"",use:""};
     lucas_inventory = [
-        {
-            name: "17 Gold Coins",
-            talk: "They have nothing interesting to tell.",
-            look: "Seventeen shiny gold coins!",
-            use:  "There's nothing to buy here."
-        },
-        empt, empt, empt
+        empt, empt, empt, empt
     ];
     lucas_mouse_areas = [];
     // add menu mouse areas
@@ -208,18 +256,6 @@ function lucas_init() {
         click: function() {lucas_action("take");}
     });
     // add inventory mouse areas
-    var x = W/2 + LUCAS_XS*6;
-    var dy = H-LUCAS_HS+LUCAS_YS*6-20;
-    var t;
-    for (var i = 0; i < lucas_inventory.length; i++) {
-        t = lucas_inventory[i];
-        lucas_mouse_areas.push({
-            pos: [x, dy+i*20],
-            sz:  [200, 40],
-            hover: voidfn,
-            click: function() {lucas_action(t.name);}
-        });
-    }
     lucas_set_stage_mouse_areas();
 }
 
@@ -259,7 +295,7 @@ function lucas_draw_menu() {
 function lucas_draw_inventory() {
     var x = W/2 + LUCAS_XS*6;
     var dy = H-LUCAS_HS+LUCAS_YS*6;
-    CTX.fillStyle = "#333333";
+    CTX.fillStyle = "#111";
     CTX.fillRect(x-10, dy-20, 250, 100);
     CTX.font = "15px sans-serif";
     CTX.fillStyle = "#dddddd";
@@ -274,18 +310,17 @@ function lucas_draw_inventory() {
 function lucas_draw() {
     var y = 200;
     // player
-    CTX.fillStyle = "#ffffff";
-    CTX.fillRect(lucas_x, y, 50, 100);
+    CTX.drawImage(LUCAS_I_GUY, lucas_x, y);
     // stage
     var s;
     for (var i = 0; i < lucas_stage_stuff[lucas_stage].length; i++) {
         s = lucas_stage_stuff[lucas_stage][i];
-        CTX.fillRect(s.pos[0], s.pos[1], s.sz[0], s.sz[1]);
+        CTX.drawImage(s.img, s.pos[0], s.pos[1]);
     }
 }
 
 function lucas_frame(dt) {
-    clear("#4444aa");
+    CTX.drawImage(LUCAS_I_STAGE_1, 0, 0);
     lucas_draw();
     // border
     CTX.fillStyle = "#000";
@@ -297,7 +332,6 @@ function lucas_frame(dt) {
     lucas_draw_menu()
     lucas_draw_inventory()
     lucas_set_stage_mouse_areas();
-    // XXX rm_mouse_areas() on win and lose
     // text
     if (lucas_say_to > 0) {
         lucas_say_to -= 1;
@@ -306,7 +340,16 @@ function lucas_frame(dt) {
         CTX.textAlign = "center";
         CTX.fillText(lucas_say_s, W/2, 40);
     }
-
+    if (lucas_slingshot_taken) {
+        CTX.drawImage(
+            LUCAS_I_SLINGSHOT,
+            W/2 + LUCAS_XS*6,
+            H-LUCAS_HS+LUCAS_YS*6);
+    }
+    if (lucas_won) {
+        rm_mouse_areas();
+        return "next";
+    }
     return true;
 }
 
