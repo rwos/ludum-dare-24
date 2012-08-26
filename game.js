@@ -85,9 +85,19 @@ function key_change(code, down) {
 }
 
 document.body.onkeydown = function(event) {
-    preventDefault(event);
     event = event || window.event;
     var code = event.keyCode;
+    if (code == 38 ||
+        code == 32 ||
+        code == 87 ||
+        code == 40 ||
+        code == 83 ||
+        code == 65 ||
+        code == 37 ||
+        code == 68 ||
+        code == 39) {
+        preventDefault(event);
+    }
     key_change(code, true);
 }
 
