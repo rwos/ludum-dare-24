@@ -42,18 +42,17 @@ function display_ctrl_hint() {
     document.getElementById("ctrl-hint").innerHTML = s + "</pre>";
 }
 
-function chg_level() {
-    var lvl_name = LEVELS[NEXT_LEVEL];
+function chg_level(name) {
+    NEXT_LEVEL = LEVELS.indexOf(name) + 1;
     // evil eval! :-)
-    frame_fun = eval(lvl_name + "_frame");
-    ctrl_hint_fun = eval(lvl_name + "_ctrl_hint");
+    frame_fun = eval(name + "_frame");
+    ctrl_hint_fun = eval(name + "_ctrl_hint");
     display_ctrl_hint();
     for (var k in KEY) {
         KEY[k] = false;
     }
     TARGET_FRAME_TIME = 1000 / 60;
-    eval(lvl_name + "_init()");
-    NEXT_LEVEL += 1;
+    eval(name + "_init()");
 }
 
 var lost_cnt;
@@ -94,7 +93,7 @@ function main() {
     }
     frame_ret = frame_fun(TIME_DELTA + TIMEOUT);
     if (frame_ret === "next") {
-        chg_level();
+        chg_level(LEVELS[NEXT_LEVEL]);
     } else if (! frame_ret) {
         NEXT_LEVEL -= 1;
         lost_init();
@@ -105,6 +104,6 @@ function main() {
 
 var TIME_DELTA = 0.3;
 END_TIME = new Date().getTime();
-chg_level();
+chg_level(LEVELS[NEXT_LEVEL]);
 RUNNING = setTimeout(main, 1);
 
